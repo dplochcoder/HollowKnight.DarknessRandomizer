@@ -1,9 +1,8 @@
 ﻿using DarknessRandomizer.Rando;
 
-namespace DarknessRandomizer
+namespace DarknessRandomizer;
+
+public class GlobalSettings
 {
-    public class GlobalSettings
-    {
-        public RandomizationSettings RandomizationSettings = new();
-    }
+    public RandomizationSettings RandomizationSettings = new();
 }

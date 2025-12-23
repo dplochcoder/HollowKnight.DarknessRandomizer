@@ -4,154 +4,148 @@ using ItemChanger.Tags;
 using System;
 using UnityEngine;
 
-namespace DarknessRandomizer.IC
+namespace DarknessRandomizer.IC;
+
+public static class LanternShards
 {
-    public static class LanternShards
+    public const string PDName = "numLanternShards";
+
+    public const int TotalNumShards = 4;
+
+    public static int GetPDShardCount() => PlayerData.instance.GetInt(PDName);
+}
+
+internal class LanternShardUIDef(bool isFinal) : UIDef
+{
+    public readonly bool IsFinal = isFinal;
+    private readonly ISprite sprite = new EmbeddedSprite("LanternShard");
+    private readonly ISprite bigSprite = new EmbeddedSprite("LumaflyLantern");
+
+    public override string GetPreviewName() => "Lantern Shard";
+
+    public override string GetPostviewName()
     {
-        public const string PDName = "numLanternShards";
+        if (IsFinal) return $"Lantern Shard (#{LanternShards.TotalNumShards})";
 
-        public const int TotalNumShards = 4;
-
-        public static int GetPDShardCount() => PlayerData.instance.GetInt(PDName);
+        int count = LanternShards.GetPDShardCount();
+        return count >= LanternShards.TotalNumShards ? "Lantern Shard" : $"Lantern Shard (#{count})";
     }
 
-    internal class LanternShardUIDef : UIDef
+    public override string GetShopDesc() => LanternShards.GetPDShardCount() switch
     {
-        public readonly bool IsFinal;
-        private readonly ISprite sprite = new EmbeddedSprite("LanternShard");
-        private readonly ISprite bigSprite = new EmbeddedSprite("LumaflyLantern");
+        0 => "I suppose this piece of trash is worth something?",
+        1 => "What are you going to do with two pieces of trash?",
+        2 => "Are you going to weld these together or something? How?!",
+        3 => "Wow, you actually found the whole thing. I'm impressed.",
+        _ => "I hear that with two lanterns you can explore advanced darkness.",
+    };
 
-        public LanternShardUIDef(bool isFinal)
+    public override Sprite GetSprite() => sprite.Value;
+
+    public override void SendMessage(MessageType type, Action? callback = null)
+    {
+        if (IsFinal && (type & MessageType.Big) == MessageType.Big)
         {
-            this.IsFinal = isFinal;
+            BigItemPopup.Show(
+                bigSprite.Value,
+                "Assembled the",
+                new LanguageString("UI", "INV_NAME_LANTERN").Value,
+                null,
+                null,
+                "The last shard is collected, the whole assembled.",
+                "Fear the darkness no longer.",
+                callback);
+            return;
         }
 
-        public override string GetPreviewName() => "Lantern Shard";
-
-        public override string GetPostviewName()
+        if ((type & MessageType.Corner) == MessageType.Corner)
         {
-            if (IsFinal) return $"Lantern Shard (#{LanternShards.TotalNumShards})";
-
-            int count = LanternShards.GetPDShardCount();
-            return count >= LanternShards.TotalNumShards ? "Lantern Shard" : $"Lantern Shard (#{count})";
+            ItemChanger.Internal.MessageController.Enqueue(GetSprite(), GetPostviewName());
         }
 
-        public override string GetShopDesc() => LanternShards.GetPDShardCount() switch
-        {
-            0 => "I suppose this piece of trash is worth something?",
-            1 => "What are you going to do with two pieces of trash?",
-            2 => "Are you going to weld these together or something? How?!",
-            3 => "Wow, you actually found the whole thing. I'm impressed.",
-            _ => "I hear that with two lanterns you can explore advanced darkness.",
-        };
-
-        public override Sprite GetSprite() => sprite.Value;
-
-        public override void SendMessage(MessageType type, Action? callback = null)
-        {
-            if (IsFinal && (type & MessageType.Big) == MessageType.Big)
-            {
-                BigItemPopup.Show(
-                    bigSprite.Value,
-                    "Assembled the",
-                    new LanguageString("UI", "INV_NAME_LANTERN").Value,
-                    null,
-                    null,
-                    "The last shard is collected, the whole assembled.",
-                    "Fear the darkness no longer.",
-                    callback);
-                return;
-            }
-
-            if ((type & MessageType.Corner) == MessageType.Corner)
-            {
-                ItemChanger.Internal.MessageController.Enqueue(GetSprite(), GetPostviewName());
-            }
-
-            callback?.Invoke();
-        }
-
-        public override UIDef Clone() => new LanternShardUIDef(IsFinal);
+        callback?.Invoke();
     }
 
-    public class AbstractLanternShardItem : AbstractItem
+    public override UIDef Clone() => new LanternShardUIDef(IsFinal);
+}
+
+public class AbstractLanternShardItem : AbstractItem
+{
+    private const string InteropMessage = ConnectionMetadataInjector.SupplementalMetadata.InteropTagMessage;
+    private const string InteropItemPoolGroup = nameof(ConnectionMetadataInjector.Util.PoolGroup.Keys);
+
+    protected AbstractLanternShardItem(string name)
     {
-        private const string InteropMessage = ConnectionMetadataInjector.SupplementalMetadata.InteropTagMessage;
-        private const string InteropItemPoolGroup = nameof(ConnectionMetadataInjector.Util.PoolGroup.Keys);
+        this.name = name;
 
-        protected AbstractLanternShardItem(string name)
-        {
-            this.name = name;
-
-            var interop = AddTag<InteropTag>();
-            interop.Message = InteropMessage;
-            interop.Properties["PoolGroup"] = InteropItemPoolGroup;
-            interop.Properties["ModSource"] = DarknessRandomizer.Instance.GetName();
-        }
-
-        public override void GiveImmediate(GiveInfo info) => PlayerData.instance.SetInt(LanternShards.PDName, LanternShards.GetPDShardCount() + 1);
-
-        public override bool Redundant() => PlayerData.instance.GetBool(nameof(PlayerData.instance.hasLantern));
+        var interop = AddTag<InteropTag>();
+        interop.Message = InteropMessage;
+        interop.Properties["PoolGroup"] = InteropItemPoolGroup;
+        interop.Properties["ModSource"] = DarknessRandomizer.Instance.GetName();
     }
 
-    public class AbstractBaseLanternShardItem : AbstractLanternShardItem
+    public override void GiveImmediate(GiveInfo info) => PlayerData.instance.SetInt(LanternShards.PDName, LanternShards.GetPDShardCount() + 1);
+
+    public override bool Redundant() => PlayerData.instance.GetBool(nameof(PlayerData.instance.hasLantern));
+}
+
+public class AbstractBaseLanternShardItem : AbstractLanternShardItem
+{
+    public string FinalShardItemName;
+
+    protected AbstractBaseLanternShardItem(string name, string finalName) : base(name)
     {
-        public string FinalShardItemName;
-
-        protected AbstractBaseLanternShardItem(string name, string finalName) : base(name)
-        {
-            this.FinalShardItemName = finalName;
-            this.UIDef = new LanternShardUIDef(false);
-            this.ModifyItem += MaybeCompleteLantern;
-        }
-
-        private void MaybeCompleteLantern(GiveEventArgs args)
-        {
-            if (LanternShards.GetPDShardCount() == LanternShards.TotalNumShards - 1)
-            {
-                args.Item = Finder.GetItem(FinalShardItemName);
-            }
-        }
+        FinalShardItemName = finalName;
+        UIDef = new LanternShardUIDef(false);
+        ModifyItem += MaybeCompleteLantern;
     }
 
-    public class AbstractFinalLanternShardItem : AbstractLanternShardItem
+    private void MaybeCompleteLantern(GiveEventArgs args)
     {
-        public string LanternItemName;
-
-        protected AbstractFinalLanternShardItem(string name, string lanternName) : base(name)
+        if (LanternShards.GetPDShardCount() == LanternShards.TotalNumShards - 1)
         {
-            this.LanternItemName = lanternName;
-            this.UIDef = new LanternShardUIDef(true);
-        }
-
-        public override void GiveImmediate(GiveInfo info)
-        {
-            base.GiveImmediate(info);
-            Finder.GetItem(LanternItemName).GiveImmediate(info);
+            args.Item = Finder.GetItem(FinalShardItemName);
         }
     }
+}
 
-    public class FinalLanternShardItem : AbstractFinalLanternShardItem
+public class AbstractFinalLanternShardItem : AbstractLanternShardItem
+{
+    public string LanternItemName;
+
+    protected AbstractFinalLanternShardItem(string name, string lanternName) : base(name)
     {
-        public const string ItemName = "Final_Lantern_Shard";
-
-        public FinalLanternShardItem() : base(ItemName, ItemNames.Lumafly_Lantern) { }
-
-        public override AbstractItem Clone() => new FinalLanternShardItem();
+        LanternItemName = lanternName;
+        UIDef = new LanternShardUIDef(true);
     }
 
-    public class LanternShardItem : AbstractBaseLanternShardItem
+    public override void GiveImmediate(GiveInfo info)
     {
-        public const string ItemName = "Lantern_Shard";
+        base.GiveImmediate(info);
+        Finder.GetItem(LanternItemName).GiveImmediate(info);
+    }
+}
 
-        public LanternShardItem() : base(ItemName, FinalLanternShardItem.ItemName) { }
+public class FinalLanternShardItem : AbstractFinalLanternShardItem
+{
+    public const string ItemName = "Final_Lantern_Shard";
 
-        public override AbstractItem Clone() => new LanternShardItem();
+    public FinalLanternShardItem() : base(ItemName, ItemNames.Lumafly_Lantern) { }
 
-        public static void DefineICRefs()
-        {
-            Finder.DefineCustomItem(new FinalLanternShardItem());
-            Finder.DefineCustomItem(new LanternShardItem());
-        }
+    public override AbstractItem Clone() => new FinalLanternShardItem();
+}
+
+public class LanternShardItem : AbstractBaseLanternShardItem
+{
+    public const string ItemName = "Lantern_Shard";
+
+    public LanternShardItem() : base(ItemName, FinalLanternShardItem.ItemName) { }
+
+    public override AbstractItem Clone() => new LanternShardItem();
+
+    public static void DefineICRefs()
+    {
+        Finder.DefineCustomItem(new FinalLanternShardItem());
+        Finder.DefineCustomItem(new LanternShardItem());
     }
 }

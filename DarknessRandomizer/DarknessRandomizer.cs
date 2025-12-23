@@ -10,68 +10,67 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace DarknessRandomizer
+namespace DarknessRandomizer;
+
+public class DarknessRandomizer : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
 {
-    public class DarknessRandomizer : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
+    public static DarknessRandomizer Instance { get; private set; }
+    public static GlobalSettings GS { get; private set; } = new();
+
+    public bool ToggleButtonInsideMenu => false;
+
+    public static new void Log(string msg) => ((Loggable)Instance).Log(msg);
+
+    public DarknessRandomizer() : base("DarknessRandomizer")
     {
-        public static DarknessRandomizer Instance { get; private set; }
-        public static GlobalSettings GS { get; private set; } = new();
+        Instance = this;
+    }
 
-        public bool ToggleButtonInsideMenu => false;
+    public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
+    {
+        Preloader.Instance.Initialize(preloadedObjects);
 
-        public static new void Log(string msg) { ((Loggable)Instance).Log(msg); }
-
-        public DarknessRandomizer() : base("DarknessRandomizer")
+        if (ModHooks.GetMod("Randomizer 4") is Mod)
         {
-            Instance = this;
+            Vanilla.Setup();
+            RandoInterop.Setup();
         }
 
-        public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
+        SceneMetadata.Load();
+        Data.SceneData.Load();
+        ClusterData.Load();
+
+        LanternShardItem.DefineICRefs();
+        RandoPlusInterop.DefineICRefs();
+    }
+
+    public override List<(string, string)> GetPreloadNames() => [.. Preloader.Instance.GetPreloadNames()];
+
+    public void OnLoadGlobal(GlobalSettings s) => GS = s ?? new();
+
+    public GlobalSettings OnSaveGlobal() => GS ?? new();
+
+    private static readonly string Version = VersionUtil.ComputeVersion<DarknessRandomizer>();
+
+    public override string GetVersion() => Version;
+
+    public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+    {
+        ModMenuScreenBuilder builder = new(Localization.Localize("Darkness Randomizer Viewer"), modListMenu);
+        builder.AddButton(Localization.Localize("Open DarknessSpoiler.json"), null, OpenDarknessSpoiler);
+        return builder.CreateMenuScreen();
+    }
+
+    private void OpenDarknessSpoiler()
+    {
+        string fname = Path.Combine(RandomizerMod.Logging.LogManager.RecentDirectory, "DarknessSpoiler.json");
+        try
         {
-            Preloader.Instance.Initialize(preloadedObjects);
-
-            if (ModHooks.GetMod("Randomizer 4") is Mod)
-            {
-                Vanilla.Setup();
-                RandoInterop.Setup();
-            }
-
-            SceneMetadata.Load();
-            Data.SceneData.Load();
-            ClusterData.Load();
-
-            LanternShardItem.DefineICRefs();
-            RandoPlusInterop.DefineICRefs();
+            System.Diagnostics.Process.Start(fname);
         }
-
-        public override List<(string, string)> GetPreloadNames() => new(Preloader.Instance.GetPreloadNames());
-
-        public void OnLoadGlobal(GlobalSettings s) => GS = s ?? new();
-
-        public GlobalSettings OnSaveGlobal() => GS ?? new();
-
-        private static readonly string Version = VersionUtil.ComputeVersion<DarknessRandomizer>();
-
-        public override string GetVersion() => Version;
-
-        public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+        catch (Exception e)
         {
-            ModMenuScreenBuilder builder = new(Localization.Localize("Darkness Randomizer Viewer"), modListMenu);
-            builder.AddButton(Localization.Localize("Open DarknessSpoiler.json"), null, OpenDarknessSpoiler);
-            return builder.CreateMenuScreen();
-        }
-
-        private void OpenDarknessSpoiler()
-        {
-            string fname = Path.Combine(RandomizerMod.Logging.LogManager.RecentDirectory, "DarknessSpoiler.json");
-            try
-            {
-                System.Diagnostics.Process.Start(fname);
-            }
-            catch (Exception e)
-            {
-                LogError(e);
-            }
+            LogError(e);
         }
     }
 }

@@ -3,40 +3,39 @@ using ItemChanger.Extensions;
 using ItemChanger.FsmStateActions;
 using UnityEngine;
 
-namespace DarknessRandomizer.IC
+namespace DarknessRandomizer.IC;
+
+// Marks a darkness region that was placed by DarknessRandomizer, and should not be altered.
+public class CustomDarknessRegion : MonoBehaviour { }
+
+public record DarknessRegion
 {
-    // Marks a darkness region that was placed by DarknessRandomizer, and should not be altered.
-    public class CustomDarknessRegion : MonoBehaviour { }
+    public Darkness Darkness;
+    public float X;
+    public float Y;
+    public float Width;
+    public float Height;
 
-    public record DarknessRegion
+    public void Deploy()
     {
-        public Darkness Darkness;
-        public float X;
-        public float Y;
-        public float Width;
-        public float Height;
+        var obj = Object.Instantiate(Preloader.Instance.DarknessRegion);
+        obj.AddComponent<CustomDarknessRegion>();
+        obj.name = $"CustomDarknessRegion-{X}-{Y}";
+        obj.transform.position = new(X, Y, 0);
+        obj.transform.localScale = new(1, 1, 1);
+        obj.GetComponent<BoxCollider2D>().size = new(Width, Height);
 
-        public void Deploy()
+        var fsm = obj.LocateMyFSM("Darkness Region");
+        fsm.FsmVariables.FindFsmInt("Darkness").Value = (int)Darkness;
+        fsm.GetState("Enter").AddLastAction(new Lambda(() =>
         {
-            var obj = Object.Instantiate(Preloader.Instance.DarknessRegion);
-            obj.AddComponent<CustomDarknessRegion>();
-            obj.name = $"CustomDarknessRegion-{X}-{Y}";
-            obj.transform.position = new(X, Y, 0);
-            obj.transform.localScale = new(1, 1, 1);
-            obj.GetComponent<BoxCollider2D>().size = new(Width, Height);
-
-            var fsm = obj.LocateMyFSM("Darkness Region");
-            fsm.FsmVariables.FindFsmInt("Darkness").Value = (int)Darkness;
-            fsm.GetState("Enter").AddLastAction(new Lambda(() =>
+            if (!PlayerData.instance.GetBool(nameof(PlayerData.instance.hasLantern)))
             {
-                if (!PlayerData.instance.GetBool(nameof(PlayerData.instance.hasLantern)))
-                {
-                    GameObject.Find("/Knight/Vignette/Darkness Plates")?.SetActive(true);
-                }
-            }));
-            fsm.GetState("Exit").AddLastAction(new Lambda(() => GameObject.Find("/Knight/Vignette/Darkness Plates")?.SetActive(false)));
+                GameObject.Find("/Knight/Vignette/Darkness Plates")?.SetActive(true);
+            }
+        }));
+        fsm.GetState("Exit").AddLastAction(new Lambda(() => GameObject.Find("/Knight/Vignette/Darkness Plates")?.SetActive(false)));
 
-            obj.SetActive(true);
-        }
+        obj.SetActive(true);
     }
 }

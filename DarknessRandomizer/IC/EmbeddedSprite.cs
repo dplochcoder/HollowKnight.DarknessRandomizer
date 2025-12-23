@@ -1,13 +1,12 @@
 ﻿using ItemChanger.Internal;
 
-namespace DarknessRandomizer.IC
+namespace DarknessRandomizer.IC;
+
+public class EmbeddedSprite : ItemChanger.EmbeddedSprite
 {
-    public class EmbeddedSprite : ItemChanger.EmbeddedSprite
-    {
-        private static readonly SpriteManager manager = new(typeof(EmbeddedSprite).Assembly, "DarknessRandomizer.Resources.Sprites.");
+    private static readonly SpriteManager manager = new(typeof(EmbeddedSprite).Assembly, "DarknessRandomizer.Resources.Sprites.");
 
-        public EmbeddedSprite(string key) => this.key = key;
+    public EmbeddedSprite(string key) => this.key = key;
 
-        public override SpriteManager SpriteManager => manager;
-    }
+    public override SpriteManager SpriteManager => manager;
 }

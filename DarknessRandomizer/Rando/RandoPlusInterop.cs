@@ -2,26 +2,25 @@
 using ItemChanger;
 using Modding;
 
-namespace DarknessRandomizer.Rando
+namespace DarknessRandomizer.Rando;
+
+public static class RandoPlusInterop
 {
-    public static class RandoPlusInterop
+    public static bool ModInstalled => ModHooks.GetMod("RandoPlus") is Mod;
+
+    public static bool NoLantern => ModInstalled && InternalRandoPlusInterop.NoLantern;
+
+    public static string LanternTermName => ModInstalled ? InternalRandoPlusInterop.LanternTermName : "LANTERN";
+
+    public static string LanternItemName => ModInstalled ? InternalRandoPlusInterop.LanternItemName : ItemNames.Lumafly_Lantern;
+
+    public static string LanternShardItemName => ModInstalled ? InternalRandoPlusInterop.LanternShardItemName : LanternShardItem.ItemName;
+
+    public static void DefineICRefs()
     {
-        public static bool ModInstalled => ModHooks.GetMod("RandoPlus") is Mod;
-
-        public static bool NoLantern => ModInstalled && InternalRandoPlusInterop.NoLantern;
-
-        public static string LanternTermName => ModInstalled ? InternalRandoPlusInterop.LanternTermName : "LANTERN";
-
-        public static string LanternItemName => ModInstalled ? InternalRandoPlusInterop.LanternItemName : ItemNames.Lumafly_Lantern;
-
-        public static string LanternShardItemName => ModInstalled ? InternalRandoPlusInterop.LanternShardItemName : LanternShardItem.ItemName;
-
-        public static void DefineICRefs()
+        if (ModInstalled)
         {
-            if (ModInstalled)
-            {
-                InternalRandoPlusInterop.DefineICRefs();
-            }
+            InternalRandoPlusInterop.DefineICRefs();
         }
     }
 }
