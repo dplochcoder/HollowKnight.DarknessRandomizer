@@ -51,6 +51,19 @@ public static class LogicClauseEditor
 
     private static Expression<LogicExpressionType> IsRoomLight(SceneName sceneName, ExpressionBuilder<LogicExpressionType> builder) => builder.ApplyInfixOperator(builder.NameAtom($"$DarknessLevel[{sceneName}]"), builder.Op("<"), builder.NumberAtom(2));
 
+    private static bool IsNamedToken(string name, Expression<LogicExpressionType> expr) => expr is AtomExpression<LogicExpressionType> atom && atom.Token is NameToken named && named.Content == name;
+
+    private static bool IsLanternExpression(Token lanternToken, Expression<LogicExpressionType> expr)
+    {
+        if (IsNamedToken(lanternToken.Content, expr)) return true;
+        if (expr is OrExpression or
+            && ((IsNamedToken(lanternToken.Content, or.Left) && IsNamedToken("DARKROOMS", or.Right))
+                || (IsNamedToken(lanternToken.Content, or.Right) && IsNamedToken("DARKROOMS", or.Left))))
+            return true;
+
+        return false;
+    }
+
     private static Expression<LogicExpressionType>? ApplyDarknessConstraints(
         IReadOnlyCollection<SceneName> scoped,
         Dictionary<Expression<LogicExpressionType>, IReadOnlyCollection<SceneName>> cache,
@@ -62,7 +75,7 @@ public static class LogicClauseEditor
         ExpressionBuilder<LogicExpressionType> builder)
     {
         // We force damageboosts to require light, since they may rely on hazard respawn triggers.
-        if (scoped.Count > 0 && expr is AtomExpression<LogicExpressionType> atom && atom.Token is NameToken named && named.Content == "DAMAGEBOOSTS")
+        if (scoped.Count > 0 && IsNamedToken("DAMAGEBOOSTS", expr))
         {
             // If we have NOLANTERN, HRTs are never re-enabled, so the skip may be impossible.
             if (lanternToken.Content == "NOLANTERN") return builder.NameAtom("FALSE");
@@ -78,7 +91,22 @@ public static class LogicClauseEditor
         HashSet<SceneName> requiredScenes = [.. GetRequiredScenes(cache, self, sni, expr)];
         requiredScenes.RemoveWhere(scoped.Contains);
 
-        if (requiredScenes.Count == 0) return null;
+        if (requiredScenes.Count == 0)
+        {
+            // Ignore pre-existing LANTERN and DARKROOMS clauses.
+            if (expr is AndExpression and)
+            {
+                if (IsLanternExpression(lanternToken, and.Left)) return and.Right;
+                if (IsLanternExpression(lanternToken, and.Right)) return and.Left;
+                return null;
+            }
+            if (expr is OrExpression or && (IsLanternExpression(lanternToken, or.Left) || IsLanternExpression(lanternToken, or.Right)))
+                return builder.NameAtom("TRUE");
+            if (IsLanternExpression(lanternToken, expr))
+                return builder.NameAtom("TRUE");
+
+            return null;
+        }
 
         var constraint = builder.ApplyInfixOperatorLeftAssoc(requiredScenes.Select(s => IsRoomLight(s, builder)).Concat([builder.NameAtom(lanternToken.Print()), darkroomsLogic]), builder.Op("|"));
         return builder.ApplyInfixOperator(constraint, builder.Op("+"), expr.Transform(

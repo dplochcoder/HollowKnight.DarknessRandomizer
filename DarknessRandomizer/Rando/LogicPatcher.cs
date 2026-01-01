@@ -1,4 +1,5 @@
 ﻿using DarknessRandomizer.Data;
+using ItemChanger;
 using Modding;
 using RandomizerCore;
 using RandomizerCore.Logic;
@@ -46,10 +47,10 @@ internal class LogicOverrides
             { WaypointName.DefeatedWhiteDefender, CustomSceneLogicEdit(SceneName.DreamWhiteDefender, "DARKROOMS + DIFFICULTSKIPS + PROFICIENTCOMBAT") },
 
             // Specific checks with difficult platforming.
-            { "Void_Heart", CustomSceneLogicEdit(SceneName.DreamAbyss, "DARKROOMS + DIFFICULTSKIPS") },
+            { LocationNames.Void_Heart, CustomSceneLogicEdit(SceneName.DreamAbyss, "DARKROOMS + DIFFICULTSKIPS") },
 
             // QG stag checks are free except for these two.
-            { "Soul_Totem-Below_Marmu", CustomDarkLogicEdit("DARKROOMS") },
+            { LocationNames.Soul_Totem_Below_Marmu, CustomDarkLogicEdit("DARKROOMS") },
             { $"{SceneName.GardensGardensStag}[top1]", CustomDarkLogicEdit("DARKROOMS") },
 
             // Basin toll bench requires lantern.
@@ -57,23 +58,28 @@ internal class LogicOverrides
 
             // Cornifer bench makes the left transition free, but not vice versa.
             { $"{SceneName.GardensCornifer}[left1]", SkipDarkLogicFor("Bench-Gardens_Cornifer") },
-            { "Queen's_Gardens_Map", SkipDarkLogicFor("Bench-Gardens_Cornifer") },
+            { LocationNames.Queens_Gardens_Map, SkipDarkLogicFor("Bench-Gardens_Cornifer") },
 
             // These checks are specifically dark-guarded in darkrooms.
-            { "Rancid_Egg-Blue_Lake", StandardLogicEdit },
-            { "Mask_Shard-Queen's_Station", StandardLogicEdit },
+            { LocationNames.Rancid_Egg_Blue_Lake, StandardLogicEdit },
+            { LocationNames.Mask_Shard_Queens_Station, StandardLogicEdit },
 
             // Greenpath toll bench requires lantern.
             { "Bench-Greenpath_Toll", CustomDarkLogicEdit("Bench-Greenpath_Toll") },
 
+            // Peaks toll requires lantern.
+            { $"{SceneName.CrossroadsPeakDarkToll}[left1]", CustomDarkLogicEdit("FALSE") },
+            { $"{SceneName.CrossroadsPeakDarkToll}[right1]", CustomDarkLogicEdit("FALSE") },
+            { LocationNames.Geo_Rock_Crystal_Peak_Entrance, ManualLogicEdit($"{SceneName.CrossroadsPeakDarkToll}[right1] + ($DarknessLevel[{SceneName.CrossroadsPeakDarkToll}]<2 | DARKROOMS)") },
+
             // Dream nail has a custom scene which may be dark.
-            { "Dream_Nail", CustomSceneLogicEdit(SceneName.DreamNail, "DARKROOMS") },
+            { LocationNames.Dream_Nail, CustomSceneLogicEdit(SceneName.DreamNail, "DARKROOMS") },
 
             // These checks are free from bench-rando benches.
-            { "Crystal_Heart", SkipDarkLogicFor("Bench-Mining_Golem") },
-            { "Isma's_Tear", SkipDarkLogicFor("Bench-Isma's_Grove") },
-            { "King's_Idol-Deepnest", SkipDarkLogicFor("Bench-Zote's_Folly") },
-            { "Tram_Pass", SkipDarkLogicFor("Bench-Destroyed_Tram") },
+            { LocationNames.Crystal_Heart, SkipDarkLogicFor("Bench-Mining_Golem") },
+            { LocationNames.Ismas_Tear, SkipDarkLogicFor("Bench-Isma's_Grove") },
+            { LocationNames.Kings_Idol_Deepnest, SkipDarkLogicFor("Bench-Zote's_Folly") },
+            { LocationNames.Tram_Pass, SkipDarkLogicFor("Bench-Destroyed_Tram") },
 
             // These bosses are deemed difficult in the dark.
             { "Defeated_Any_Hollow_Knight", CustomDarkLogicEdit("DARKROOMS + DIFFICULTSKIPS + PROFICIENTCOMBAT") },
@@ -290,6 +296,8 @@ internal class LogicOverrides
     private void StandardLogicEdit(LogicManagerBuilder lmb, string logicName, LogicClause lc) =>
         LogicClauseEditor.EditDarkness(lmb, logicName, GetSceneNameInferrer(logicName), LanternToken, DarkroomsExpression);
 
+    private LogicOverride ManualLogicEdit(string logic) => (lmb, logicName, lc) => lmb.LogicLookup[logicName] = new(logic);
+
     private LogicOverride CustomDarkLogicEdit(string darkLogic) => (lmb, logicName, lc) => LogicClauseEditor.EditDarkness(lmb, logicName, GetSceneNameInferrer(logicName), LanternToken, GetCachedLogic(darkLogic));
 
     private LogicOverride SkipDarkLogicFor(params string[] locTerms)
@@ -352,11 +360,7 @@ internal static class LogicPatcher
         // require custom handling.
         //
         // We defer the edits to avoid messing with dictionary iteration order.
-        List<string> names = [];
-        foreach (var e in lmb.LogicLookup)
-        {
-            names.Add(e.Key);
-        }
+        List<string> names = [.. lmb.LogicLookup.Keys];
         names.ForEach(n => overrides.EditLogicClause(lmb, n, lmb.LogicLookup[n]));
 
         // Darkness can block routes around infection walls in crossroads.
