@@ -8,9 +8,9 @@ using ItemChanger.FsmStateActions;
 using Newtonsoft.Json;
 using PurenailCore.ICUtil;
 using PurenailCore.SystemUtil;
-using SFCore.Utils;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -114,6 +114,8 @@ public class DarknessRandomizerModule : ItemChanger.Modules.Module
         obj.SetActive(false);
     }
 
+    private static readonly FieldInfo heroSpawnLocation = typeof(HazardRespawnMarker).GetField("heroSpawnLocation", BindingFlags.NonPublic | BindingFlags.Instance);
+
     private void DisableDarkRoomObjects(DarknessData sceneData)
     {
         foreach (var obj in UnityEngine.Object.FindObjectsOfType<HazardRespawnTrigger>())
@@ -127,15 +129,16 @@ public class DarknessRandomizerModule : ItemChanger.Modules.Module
         if (sceneData.CurrentScene == SceneName.DreamNail && IsDark(SceneName.DreamNail))
         {
             var door = GameObject.Find("door_dreamReturn");
-            var hrm = door.transform.Find("Hazard Respawn Marker");
-            var hsl = hrm.GetComponent<HazardRespawnMarker>().GetAttr<HazardRespawnMarker, Vector2>("heroSpawnLocation");
+            var hrm = door.transform.Find("Hazard Respawn Marker").GetComponent<HazardRespawnMarker>();
+            var hsl = (Vector2)heroSpawnLocation.GetValue(hrm);
+
             for (int i = 2; i <= 4; i++)
             {
                 var door2 = GameObject.Find($"door_dreamReturn{i}");
                 door2.transform.position = door.transform.position;
                 var hrm2 = door2.transform.Find("Hazard Respawn Marker");
                 hrm2.transform.position = hrm.transform.position;
-                hrm2.GetComponent<HazardRespawnMarker>().SetAttr("heroSpawnLocation", hsl);
+                heroSpawnLocation.SetValue(hrm2.GetComponent<HazardRespawnMarker>(), hsl);
             }
         }
     }
@@ -283,11 +286,11 @@ public class DarknessRandomizerModule : ItemChanger.Modules.Module
 
     private void ModifyInventory(PlayMakerFSM fsm)
     {
-        var lantern = fsm.gameObject.FindChild("Lantern");
+        var lantern = fsm.gameObject.FindChild("Lantern")!;
         var spriteRenderer = lantern.GetComponent<SpriteRenderer>();
         var origSprite = spriteRenderer.sprite;
 
-        var state = fsm.GetFsmState("Lantern");
+        var state = fsm.GetState("Lantern");
         var sets = state.GetActionsOfType<SetFsmString>();
         var setName = sets[0];
         var setDesc = sets[1];
@@ -376,8 +379,8 @@ public class DarknessRandomizerModule : ItemChanger.Modules.Module
                                                           }));
     private void InstallDreamnailEscape()
     {
-        DeployerHook.Test dreamNailDark = () => IsDark(SceneName.DreamNail);
-        DeployerHook.Test dreamNailDarkNoLantern = () => dreamNailDark() && !PlayerData.instance.GetBool(nameof(PlayerData.hasLantern));
+        bool dreamNailDark() => IsDark(SceneName.DreamNail);
+        bool dreamNailDarkNoLantern() => dreamNailDark() && !PlayerData.instance.GetBool(nameof(PlayerData.hasLantern));
 
         InstallHook(new DeployerHook(new DreamnailWarp(), dreamNailDarkNoLantern));
         InstallHook(new DeployerHook(new DreamnailWarpGlow(), dreamNailDarkNoLantern));
@@ -388,9 +391,11 @@ public class DarknessRandomizerModule : ItemChanger.Modules.Module
             () => On.GameManager.EnterHero -= BlockAdditiveGateSearch));
     }
 
+    private static readonly FieldInfo entryGateName = typeof(GameManager).GetField("entryGateName", BindingFlags.NonPublic | BindingFlags.Instance);
+
     private void BlockAdditiveGateSearch(On.GameManager.orig_EnterHero orig, GameManager gm, bool additiveGateSearch)
     {
-        if (!additiveGateSearch || gm.GetAttr<GameManager, string>("entryGateName") == DreamnailWarpTarget.GATE_NAME) orig(gm, false);
+        if (!additiveGateSearch || (string)entryGateName.GetValue(gm) == DreamnailWarpTarget.GATE_NAME) orig(gm, false);
         else orig(gm, additiveGateSearch);
     }
 }

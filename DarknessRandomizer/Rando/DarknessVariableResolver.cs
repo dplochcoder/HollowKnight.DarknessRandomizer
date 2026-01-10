@@ -56,7 +56,7 @@ internal class DarknessLevelInt(SceneName sceneName) : LogicInt
 
     public override string Name { get; } = $"$DarknessLevel[{sceneName}]";
 
-    public override IEnumerable<Term> GetTerms() => Enumerable.Empty<Term>();
+    public override IEnumerable<Term> GetTerms() => [];
 
     // Darkness levels don't change during randomization, so it's safe to cache this.
     private int? cache;
