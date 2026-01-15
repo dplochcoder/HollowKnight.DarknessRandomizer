@@ -391,11 +391,9 @@ public class DarknessRandomizerModule : ItemChanger.Modules.Module
             () => On.GameManager.EnterHero -= BlockAdditiveGateSearch));
     }
 
-    private static readonly FieldInfo entryGateName = typeof(GameManager).GetField("entryGateName", BindingFlags.NonPublic | BindingFlags.Instance);
-
     private void BlockAdditiveGateSearch(On.GameManager.orig_EnterHero orig, GameManager gm, bool additiveGateSearch)
     {
-        if (!additiveGateSearch || (string)entryGateName.GetValue(gm) == DreamnailWarpTarget.GATE_NAME) orig(gm, false);
+        if (!additiveGateSearch || gm.entryGateName == DreamnailWarpTarget.GATE_NAME) orig(gm, false);
         else orig(gm, additiveGateSearch);
     }
 }
