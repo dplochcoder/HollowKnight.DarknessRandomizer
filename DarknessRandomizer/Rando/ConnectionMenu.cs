@@ -31,7 +31,7 @@ internal class ConnectionMenu
         ConnectionSettingsRando.CSR.Register(
             nameof(DarknessRandomizer),
             () => DarknessRandomizer.GS.RandomizationSettings,
-            s => DarknessRandomizer.GS.RandomizationSettings = s
+            s => Instance?.ApplySettings(s)
         );
 
     private static void HookRandoSettingsManager() =>
