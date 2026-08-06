@@ -14,12 +14,12 @@ namespace DarknessRandomizer;
 
 public class DarknessRandomizer : Mod, IGlobalSettings<GlobalSettings>, ICustomMenuMod
 {
-    public static DarknessRandomizer Instance { get; private set; }
+    public static DarknessRandomizer? Instance { get; private set; }
     public static GlobalSettings GS { get; private set; } = new();
 
     public bool ToggleButtonInsideMenu => false;
 
-    public static new void Log(string msg) => ((Loggable)Instance).Log(msg);
+    public static new void Log(string msg) => (Instance as Loggable)?.Log(msg);
 
     public DarknessRandomizer()
         : base("DarknessRandomizer")
@@ -66,7 +66,7 @@ public class DarknessRandomizer : Mod, IGlobalSettings<GlobalSettings>, ICustomM
         );
         builder.AddButton(
             Localization.Localize("Open DarknessSpoiler.json"),
-            null,
+            "",
             OpenDarknessSpoiler
         );
         return builder.CreateMenuScreen();

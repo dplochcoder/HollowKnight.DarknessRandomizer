@@ -13,7 +13,7 @@ namespace DarknessRandomizer.Rando;
 
 internal class ConnectionMenu
 {
-    public static ConnectionMenu Instance { get; private set; }
+    public static ConnectionMenu? Instance { get; private set; }
 
     public static void Setup()
     {
@@ -41,16 +41,16 @@ internal class ConnectionMenu
 
     public static bool TryGetMenuButton(MenuPage page, out SmallButton button)
     {
-        button = Instance.entryButton;
+        button = Instance!.entryButton;
         return true;
     }
 
-    private SmallButton entryButton;
-    private MenuItem<bool> randomizeDarkness;
-    private MenuItem<DarknessLevel> darknessLevel;
-    private MenuItem<bool> chaos;
-    private MenuItem<bool> shatteredLantern;
-    private MenuItem<bool> twoDupeShards;
+    private readonly SmallButton entryButton;
+    private readonly MenuItem<bool> randomizeDarkness;
+    private readonly MenuItem<DarknessLevel> darknessLevel;
+    private readonly MenuItem<bool> chaos;
+    private readonly MenuItem<bool> shatteredLantern;
+    private readonly MenuItem<bool> twoDupeShards;
 
     private static T Lookup<T>(MenuElementFactory<RandomizationSettings> factory, string name)
         where T : MenuItem =>
