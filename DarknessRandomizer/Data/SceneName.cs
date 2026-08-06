@@ -1,7 +1,7 @@
-using DarknessRandomizer.Lib;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using DarknessRandomizer.Lib;
+using Newtonsoft.Json;
 
 namespace DarknessRandomizer.Data;
 
@@ -11,7 +11,9 @@ public class SceneName : ITypedId, IComparable<SceneName>
     private class FactoryImpl : ITypedIdFactory<SceneName>
     {
         public int Count() => scenesById.Count;
+
         public SceneName FromId(int id) => SceneName.FromId(id);
+
         public SceneName FromName(string name) => SceneName.FromName(name);
     }
 
@@ -41,7 +43,8 @@ public class SceneName : ITypedId, IComparable<SceneName>
 
     public string Name() => name;
 
-    public static bool TryGetValue(string s, out SceneName sceneName) => scenesByName.TryGetValue(s, out sceneName);
+    public static bool TryGetValue(string s, out SceneName sceneName) =>
+        scenesByName.TryGetValue(s, out sceneName);
 
     public static SceneName FromName(string name)
     {
@@ -62,8 +65,7 @@ public class SceneName : ITypedId, IComparable<SceneName>
 
     public int CompareTo(SceneName other) => Math.Sign(id - other.id);
 
-    public override bool Equals(object obj) => obj is SceneName name &&
-               id == name.id;
+    public override bool Equals(object obj) => obj is SceneName name && id == name.id;
 
     public override int GetHashCode() => id;
 
@@ -452,14 +454,27 @@ public class SceneName : ITypedId, IComparable<SceneName>
 
 class SceneNameConverter : JsonConverter<SceneName>
 {
-    public override SceneName ReadJson(JsonReader reader, Type objectType, SceneName? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override SceneName ReadJson(
+        JsonReader reader,
+        Type objectType,
+        SceneName? existingValue,
+        bool hasExistingValue,
+        JsonSerializer serializer
+    )
     {
-        if (serializer.Deserialize(reader, typeof(string)) is string name && SceneName.TryGetValue(name, out SceneName sceneName))
+        if (
+            serializer.Deserialize(reader, typeof(string)) is string name
+            && SceneName.TryGetValue(name, out SceneName sceneName)
+        )
         {
             return sceneName;
         }
         throw new JsonReaderException("Error decoding SceneName");
     }
 
-    public override void WriteJson(JsonWriter writer, SceneName? value, JsonSerializer serializer) => serializer.Serialize(writer, value?.Name());
+    public override void WriteJson(
+        JsonWriter writer,
+        SceneName? value,
+        JsonSerializer serializer
+    ) => serializer.Serialize(writer, value?.Name());
 }

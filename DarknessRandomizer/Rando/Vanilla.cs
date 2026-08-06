@@ -1,8 +1,8 @@
-﻿using DarknessRandomizer.IC;
+﻿using System.Collections.Generic;
+using DarknessRandomizer.IC;
 using ItemChanger;
 using ItemChanger.Tags;
 using RandomizerMod.RC;
-using System.Collections.Generic;
 
 namespace DarknessRandomizer.Rando;
 
@@ -10,7 +10,9 @@ internal class SlyLanternShardTag : Tag, IShopRequirementTag
 {
     public int RequiredShards;
 
-    public bool MeetsRequirement => ItemChangerMod.Modules.Get<DarknessRandomizerModule>().NumLanternShardsCollected >= RequiredShards;
+    public bool MeetsRequirement =>
+        ItemChangerMod.Modules.Get<DarknessRandomizerModule>().NumLanternShardsCollected
+        >= RequiredShards;
 }
 
 public static class Vanilla
@@ -21,28 +23,43 @@ public static class Vanilla
         On.UIManager.StartNewGame += PlaceVanillaItems;
     }
 
-    private static bool VanillaShatteredLantern(RequestBuilder? rb = null) => RandoInterop.ShatteredLantern && !((rb?.gs ?? RandomizerMod.RandomizerMod.RS?.GenerationSettings)?.PoolSettings.Keys ?? true);
+    private static bool VanillaShatteredLantern(RequestBuilder? rb = null) =>
+        RandoInterop.ShatteredLantern
+        && !(
+            (rb?.gs ?? RandomizerMod.RandomizerMod.RS?.GenerationSettings)?.PoolSettings.Keys
+            ?? true
+        );
+
     private static void RemoveLantern(RequestBuilder rb)
     {
-        if (!VanillaShatteredLantern(rb)) return;
+        if (!VanillaShatteredLantern(rb))
+            return;
 
-        rb.EditLocationRequest(LocationNames.Sly, info =>
-        {
-            var origFetch = info.customPlacementFetch;
-            info.customPlacementFetch = (factory, placement) =>
+        rb.EditLocationRequest(
+            LocationNames.Sly,
+            info =>
             {
-                var origPlacement = origFetch(factory, placement);
-                if (origPlacement is ItemChanger.Placements.ShopPlacement sp)
+                var origFetch = info.customPlacementFetch;
+                info.customPlacementFetch = (factory, placement) =>
                 {
-                    sp.defaultShopItems &= ~DefaultShopItems.SlyLantern;
-                    return sp;
-                }
-                return origPlacement;
-            };
-        });
+                    var origPlacement = origFetch(factory, placement);
+                    if (origPlacement is ItemChanger.Placements.ShopPlacement sp)
+                    {
+                        sp.defaultShopItems &= ~DefaultShopItems.SlyLantern;
+                        return sp;
+                    }
+                    return origPlacement;
+                };
+            }
+        );
     }
 
-    private static void PlaceVanillaItems(On.UIManager.orig_StartNewGame orig, UIManager self, bool permaDeath, bool bossRush)
+    private static void PlaceVanillaItems(
+        On.UIManager.orig_StartNewGame orig,
+        UIManager self,
+        bool permaDeath,
+        bool bossRush
+    )
     {
         if (!VanillaShatteredLantern())
         {

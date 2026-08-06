@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 using JsonUtil = PurenailCore.SystemUtil.JsonUtil<DarknessRandomizer.DarknessRandomizer>;
 
 namespace DarknessRandomizer.Data;
@@ -29,5 +28,7 @@ public class RawClusterData : BaseClusterData<string, string>
 
     protected override IEnumerable<string> EnumerateSceneNames() => SceneNames.Keys;
 
-    protected override IEnumerable<KeyValuePair<string, RelativeDarkness>> EnumerateRelativeDarkness() => AdjacentClusters;
+    protected override IEnumerable<
+        KeyValuePair<string, RelativeDarkness>
+    > EnumerateRelativeDarkness() => AdjacentClusters;
 }

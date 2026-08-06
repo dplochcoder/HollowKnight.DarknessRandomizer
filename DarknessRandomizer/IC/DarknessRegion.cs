@@ -27,14 +27,22 @@ public record DarknessRegion
 
         var fsm = obj.LocateMyFSM("Darkness Region");
         fsm.FsmVariables.FindFsmInt("Darkness").Value = (int)Darkness;
-        fsm.GetState("Enter").AddLastAction(new Lambda(() =>
-        {
-            if (!PlayerData.instance.GetBool(nameof(PlayerData.instance.hasLantern)))
-            {
-                GameObject.Find("/Knight/Vignette/Darkness Plates")?.SetActive(true);
-            }
-        }));
-        fsm.GetState("Exit").AddLastAction(new Lambda(() => GameObject.Find("/Knight/Vignette/Darkness Plates")?.SetActive(false)));
+        fsm.GetState("Enter")
+            .AddLastAction(
+                new Lambda(() =>
+                {
+                    if (!PlayerData.instance.GetBool(nameof(PlayerData.instance.hasLantern)))
+                    {
+                        GameObject.Find("/Knight/Vignette/Darkness Plates")?.SetActive(true);
+                    }
+                })
+            );
+        fsm.GetState("Exit")
+            .AddLastAction(
+                new Lambda(() =>
+                    GameObject.Find("/Knight/Vignette/Darkness Plates")?.SetActive(false)
+                )
+            );
 
         obj.SetActive(true);
     }

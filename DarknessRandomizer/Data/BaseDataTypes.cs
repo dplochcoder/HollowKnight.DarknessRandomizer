@@ -1,10 +1,10 @@
-﻿using DarknessRandomizer.IC;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DarknessRandomizer.IC;
 using DarknessRandomizer.Lib;
 using DarknessRandomizer.Rando;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace DarknessRandomizer.Data;
 
@@ -13,7 +13,7 @@ public enum Darkness : int
     SuperBright = -1,
     Bright = 0,
     SemiDark = 1,
-    Dark = 2
+    Dark = 2,
 }
 
 // Because we use compiled identifier types, and the code which updates those types also depends on them, we need two classes
@@ -24,14 +24,20 @@ public enum Darkness : int
 
 public class SceneDictionary<V> : TypedIdDictionary<SceneName, V>
 {
-    public SceneDictionary() : base(SceneName.Factory) { }
-    public SceneDictionary(SceneDictionary<V> other) : base(other) { }
+    public SceneDictionary()
+        : base(SceneName.Factory) { }
+
+    public SceneDictionary(SceneDictionary<V> other)
+        : base(other) { }
 }
 
 public class ClusterDictionary<V> : TypedIdDictionary<ClusterName, V>
 {
-    public ClusterDictionary() : base(ClusterName.Factory) { }
-    public ClusterDictionary(ClusterDictionary<V> other) : base(other) { }
+    public ClusterDictionary()
+        : base(ClusterName.Factory) { }
+
+    public ClusterDictionary(ClusterDictionary<V> other)
+        : base(other) { }
 }
 
 public class BaseSceneMetadata<SceneNameT>
@@ -71,7 +77,7 @@ public enum RelativeDarkness
     Brighter,
     Any,
     Darker,
-    Disconnected
+    Disconnected,
 }
 
 public class DarkSettings
@@ -93,7 +99,9 @@ public abstract class BaseClusterData<SceneNameT, ClusterNameT>
 
     protected abstract IEnumerable<SceneNameT> EnumerateSceneNames();
 
-    protected abstract IEnumerable<KeyValuePair<ClusterNameT, RelativeDarkness>> EnumerateRelativeDarkness();
+    protected abstract IEnumerable<
+        KeyValuePair<ClusterNameT, RelativeDarkness>
+    > EnumerateRelativeDarkness();
 
     [JsonIgnore]
     public int? ProbabilityWeight => DarkSettings?.ProbabilityWeight;
@@ -103,8 +111,10 @@ public abstract class BaseClusterData<SceneNameT, ClusterNameT>
 
     public bool CanBeDarknessSource(SceneLookup SL, RandomizationSettings settings = null)
     {
-        if (MaximumDarkness(SL, settings) < Darkness.Dark) return false;
-        if (OverrideCannotBeDarknessSource ?? false) return false;
+        if (MaximumDarkness(SL, settings) < Darkness.Dark)
+            return false;
+        if (OverrideCannotBeDarknessSource ?? false)
+            return false;
         return EnumerateRelativeDarkness().All(e => e.Value != RelativeDarkness.Darker);
     }
 
@@ -114,10 +124,15 @@ public abstract class BaseClusterData<SceneNameT, ClusterNameT>
         foreach (var sn in EnumerateSceneNames())
         {
             Darkness d2 = SL.Invoke(sn).MaximumDarkness;
-            if (d2 > d) d = d2;
+            if (d2 > d)
+                d = d2;
         }
-        
-        if (d == Darkness.Dark && (CursedOnly ?? false) && (settings?.DarknessLevel ?? DarknessLevel.Cursed) != DarknessLevel.Cursed)
+
+        if (
+            d == Darkness.Dark
+            && (CursedOnly ?? false)
+            && (settings?.DarknessLevel ?? DarknessLevel.Cursed) != DarknessLevel.Cursed
+        )
         {
             return Darkness.SemiDark;
         }
@@ -130,7 +145,8 @@ public abstract class BaseClusterData<SceneNameT, ClusterNameT>
         foreach (var sn in EnumerateSceneNames())
         {
             Darkness d2 = SL.Invoke(sn).MinimumDarkness;
-            if (d2 < d) d = d2;
+            if (d2 < d)
+                d = d2;
         }
         return d;
     }
@@ -142,27 +158,30 @@ public static class DarknessUtil
 
     public static Darkness Max(Darkness a, Darkness b) => a > b ? a : b;
 
-    public static Darkness Clamp(this Darkness self, Darkness min, Darkness max) => Min(Max(self, min), max);
+    public static Darkness Clamp(this Darkness self, Darkness min, Darkness max) =>
+        Min(Max(self, min), max);
 }
 
 public static class DataExtensions
 {
-    public static Darkness? ToDarkness(this int darkness) => darkness switch
-    {
-        -1 => (Darkness?)Darkness.SuperBright,
-        0 => (Darkness?)Darkness.Bright,
-        1 => (Darkness?)Darkness.SemiDark,
-        2 => (Darkness?)Darkness.Dark,
-        _ => null,
-    };
+    public static Darkness? ToDarkness(this int darkness) =>
+        darkness switch
+        {
+            -1 => (Darkness?)Darkness.SuperBright,
+            0 => (Darkness?)Darkness.Bright,
+            1 => (Darkness?)Darkness.SemiDark,
+            2 => (Darkness?)Darkness.Dark,
+            _ => null,
+        };
 
-    public static RelativeDarkness Opposite(this RelativeDarkness rd) => rd switch
-    {
-        RelativeDarkness.Any => RelativeDarkness.Any,
-        RelativeDarkness.Brighter => RelativeDarkness.Darker,
-        RelativeDarkness.Darker => RelativeDarkness.Brighter,
-        RelativeDarkness.Unspecified => RelativeDarkness.Unspecified,
-        RelativeDarkness.Disconnected => RelativeDarkness.Disconnected,
-        _ => throw new ArgumentException($"Unknown RelativeDarkness {rd}"),
-    };
+    public static RelativeDarkness Opposite(this RelativeDarkness rd) =>
+        rd switch
+        {
+            RelativeDarkness.Any => RelativeDarkness.Any,
+            RelativeDarkness.Brighter => RelativeDarkness.Darker,
+            RelativeDarkness.Darker => RelativeDarkness.Brighter,
+            RelativeDarkness.Unspecified => RelativeDarkness.Unspecified,
+            RelativeDarkness.Disconnected => RelativeDarkness.Disconnected,
+            _ => throw new ArgumentException($"Unknown RelativeDarkness {rd}"),
+        };
 }

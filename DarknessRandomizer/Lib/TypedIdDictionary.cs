@@ -1,12 +1,13 @@
-﻿using DarknessRandomizer.Data;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DarknessRandomizer.Data;
+using Newtonsoft.Json;
 
 namespace DarknessRandomizer.Lib;
 
-public interface ITypedIdFactory<T> where T : ITypedId
+public interface ITypedIdFactory<T>
+    where T : ITypedId
 {
     int Count();
 
@@ -23,7 +24,8 @@ public interface ITypedId
 }
 
 // A custom wrapper around `Dictionary<Id, Value>` which doesn't serialize correctly when Id is a special type.
-public class TypedIdDictionary<K, V> where K : ITypedId
+public class TypedIdDictionary<K, V>
+    where K : ITypedId
 {
     private readonly ITypedIdFactory<K> factory;
     private readonly Dictionary<K, V> dict;
@@ -50,7 +52,8 @@ public class TypedIdDictionary<K, V> where K : ITypedId
         }
     }
 
-    public TypedIdDictionary(ITypedIdFactory<K> factory) {
+    public TypedIdDictionary(ITypedIdFactory<K> factory)
+    {
         this.factory = factory;
         dict = [];
     }
@@ -78,29 +81,43 @@ public class TypedIdDictionary<K, V> where K : ITypedId
     }
 }
 
-public class TypedIdDictionaryConverter<K, V, T> : JsonConverter<T> where K : ITypedId where T : TypedIdDictionary<K, V>, new()
+public class TypedIdDictionaryConverter<K, V, T> : JsonConverter<T>
+    where K : ITypedId
+    where T : TypedIdDictionary<K, V>, new()
 {
-    public override T ReadJson(JsonReader reader, Type objectType, T? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override T ReadJson(
+        JsonReader reader,
+        Type objectType,
+        T? existingValue,
+        bool hasExistingValue,
+        JsonSerializer serializer
+    )
     {
         T ret = new()
         {
-            AsSortedDict = serializer.Deserialize<SortedDictionary<string, V>>(reader) ?? []
+            AsSortedDict = serializer.Deserialize<SortedDictionary<string, V>>(reader) ?? [],
         };
         return ret;
     }
 
-    public override void WriteJson(JsonWriter writer, T? value, JsonSerializer serializer) => serializer.Serialize(writer, value?.AsSortedDict);
+    public override void WriteJson(JsonWriter writer, T? value, JsonSerializer serializer) =>
+        serializer.Serialize(writer, value?.AsSortedDict);
 }
 
 [JsonConverter(typeof(TypedIdDictionaryConverter<SceneName, Darkness, SceneDarknessDict>))]
 public class SceneDarknessDict : SceneDictionary<Darkness>
 {
     public SceneDarknessDict() { }
-    public SceneDarknessDict(SceneDarknessDict other) : base(other) { }
+
+    public SceneDarknessDict(SceneDarknessDict other)
+        : base(other) { }
 }
 
 [JsonConverter(typeof(TypedIdDictionaryConverter<ClusterName, Darkness, ClusterDarknessDict>))]
-public class ClusterDarknessDict : ClusterDictionary<Darkness> {
+public class ClusterDarknessDict : ClusterDictionary<Darkness>
+{
     public ClusterDarknessDict() { }
-    public ClusterDarknessDict(ClusterDarknessDict other) : base(other) { }
+
+    public ClusterDarknessDict(ClusterDarknessDict other)
+        : base(other) { }
 }

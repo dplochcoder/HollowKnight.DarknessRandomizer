@@ -7,7 +7,8 @@ public class SettingsProxy : RandoSettingsProxy<RandomizationSettings, string>
 {
     public override string ModKey => nameof(DarknessRandomizer);
 
-    public override VersioningPolicy<string> VersioningPolicy => new StrictModVersioningPolicy(DarknessRandomizer.Instance);
+    public override VersioningPolicy<string> VersioningPolicy =>
+        new StrictModVersioningPolicy(DarknessRandomizer.Instance);
 
     public override bool TryProvideSettings(out RandomizationSettings? settings)
     {
@@ -15,5 +16,6 @@ public class SettingsProxy : RandoSettingsProxy<RandomizationSettings, string>
         return settings.IsEnabled;
     }
 
-    public override void ReceiveSettings(RandomizationSettings? settings) => ConnectionMenu.Instance.ApplySettings(settings ?? new());
+    public override void ReceiveSettings(RandomizationSettings? settings) =>
+        ConnectionMenu.Instance.ApplySettings(settings ?? new());
 }

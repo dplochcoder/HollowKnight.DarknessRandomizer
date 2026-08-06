@@ -1,7 +1,7 @@
-using DarknessRandomizer.Lib;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using DarknessRandomizer.Lib;
+using Newtonsoft.Json;
 
 namespace DarknessRandomizer.Data;
 
@@ -11,7 +11,9 @@ public class ClusterName : ITypedId, IComparable<ClusterName>
     private class FactoryImpl : ITypedIdFactory<ClusterName>
     {
         public int Count() => clustersById.Count;
+
         public ClusterName FromId(int id) => ClusterName.FromId(id);
+
         public ClusterName FromName(string name) => ClusterName.FromName(name);
     }
 
@@ -41,7 +43,8 @@ public class ClusterName : ITypedId, IComparable<ClusterName>
 
     public string Name() => name;
 
-    public static bool TryGetValue(string s, out ClusterName cluster) => clustersByName.TryGetValue(s, out cluster);
+    public static bool TryGetValue(string s, out ClusterName cluster) =>
+        clustersByName.TryGetValue(s, out cluster);
 
     public static ClusterName FromName(string name)
     {
@@ -64,8 +67,7 @@ public class ClusterName : ITypedId, IComparable<ClusterName>
 
     public int CompareTo(ClusterName other) => Math.Sign(id - other.id);
 
-    public override bool Equals(object obj) => obj is ClusterName name &&
-               id == name.id;
+    public override bool Equals(object obj) => obj is ClusterName name && id == name.id;
 
     public override int GetHashCode() => id;
 
@@ -117,7 +119,9 @@ public class ClusterName : ITypedId, IComparable<ClusterName>
     public static readonly ClusterName CrossroadsAncestralMound = new("CrossroadsAncestralMound");
     public static readonly ClusterName CrossroadsCanyonBridge = new("CrossroadsCanyonBridge");
     public static readonly ClusterName CrossroadsCentralPass = new("CrossroadsCentralPass");
-    public static readonly ClusterName CrossroadsElevatorApproach = new("CrossroadsElevatorApproach");
+    public static readonly ClusterName CrossroadsElevatorApproach = new(
+        "CrossroadsElevatorApproach"
+    );
     public static readonly ClusterName CrossroadsEntrance = new("CrossroadsEntrance");
     public static readonly ClusterName CrossroadsFailedChampion = new("CrossroadsFailedChampion");
     public static readonly ClusterName CrossroadsFalseKnight = new("CrossroadsFalseKnight");
@@ -144,11 +148,15 @@ public class ClusterName : ITypedId, IComparable<ClusterName>
     public static readonly ClusterName CrystalPeaksCrownGrub = new("CrystalPeaksCrownGrub");
     public static readonly ClusterName CrystalPeaksCrushersGrub = new("CrystalPeaksCrushersGrub");
     public static readonly ClusterName CrystalPeaksCrystalHeart = new("CrystalPeaksCrystalHeart");
-    public static readonly ClusterName CrystalPeaksCrystallizedMound = new("CrystalPeaksCrystallizedMound");
+    public static readonly ClusterName CrystalPeaksCrystallizedMound = new(
+        "CrystalPeaksCrystallizedMound"
+    );
     public static readonly ClusterName CrystalPeaksDarkRoom = new("CrystalPeaksDarkRoom");
     public static readonly ClusterName CrystalPeaksDeepFocus = new("CrystalPeaksDeepFocus");
     public static readonly ClusterName CrystalPeaksElevatorWing = new("CrystalPeaksElevatorWing");
-    public static readonly ClusterName CrystalPeaksEnragedGuardian = new("CrystalPeaksEnragedGuardian");
+    public static readonly ClusterName CrystalPeaksEnragedGuardian = new(
+        "CrystalPeaksEnragedGuardian"
+    );
     public static readonly ClusterName CrystalPeaksGuardian = new("CrystalPeaksGuardian");
     public static readonly ClusterName CrystalPeaksLowerPass = new("CrystalPeaksLowerPass");
     public static readonly ClusterName CrystalPeaksMiddleBridge = new("CrystalPeaksMiddleBridge");
@@ -243,8 +251,12 @@ public class ClusterName : ITypedId, IComparable<ClusterName>
     public static readonly ClusterName GreenpathSheo = new("GreenpathSheo");
     public static readonly ClusterName GreenpathStag = new("GreenpathStag");
     public static readonly ClusterName GreenpathStoneSanctuary = new("GreenpathStoneSanctuary");
-    public static readonly ClusterName GreenpathStoneSanctuaryApproach = new("GreenpathStoneSanctuaryApproach");
-    public static readonly ClusterName GreenpathStoneSanctuaryBench = new("GreenpathStoneSanctuaryBench");
+    public static readonly ClusterName GreenpathStoneSanctuaryApproach = new(
+        "GreenpathStoneSanctuaryApproach"
+    );
+    public static readonly ClusterName GreenpathStoneSanctuaryBench = new(
+        "GreenpathStoneSanctuaryBench"
+    );
     public static readonly ClusterName GreenpathThorns = new("GreenpathThorns");
     public static readonly ClusterName GreenpathUnn = new("GreenpathUnn");
     public static readonly ClusterName GreenpathUnnBench = new("GreenpathUnnBench");
@@ -288,14 +300,27 @@ public class ClusterName : ITypedId, IComparable<ClusterName>
 
 class ClusterNameConverter : JsonConverter<ClusterName>
 {
-    public override ClusterName ReadJson(JsonReader reader, Type objectType, ClusterName? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override ClusterName ReadJson(
+        JsonReader reader,
+        Type objectType,
+        ClusterName? existingValue,
+        bool hasExistingValue,
+        JsonSerializer serializer
+    )
     {
-        if (serializer.Deserialize(reader, typeof(string)) is string name && ClusterName.TryGetValue(name, out ClusterName clusterName))
+        if (
+            serializer.Deserialize(reader, typeof(string)) is string name
+            && ClusterName.TryGetValue(name, out ClusterName clusterName)
+        )
         {
             return clusterName;
         }
         throw new JsonReaderException("Error decoding ClusterName");
     }
 
-    public override void WriteJson(JsonWriter writer, ClusterName? value, JsonSerializer serializer) => serializer.Serialize(writer, value?.Name());
+    public override void WriteJson(
+        JsonWriter writer,
+        ClusterName? value,
+        JsonSerializer serializer
+    ) => serializer.Serialize(writer, value?.Name());
 }

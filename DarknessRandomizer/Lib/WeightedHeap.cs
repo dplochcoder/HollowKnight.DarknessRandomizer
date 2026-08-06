@@ -131,10 +131,12 @@ public class WeightedHeap<T>
         if (i < lw)
         {
             ret = left.Remove(i);
-        } else if (i < lw + pivotWeight)
+        }
+        else if (i < lw + pivotWeight)
         {
             ret = RemovePivotNoAccounting();
-        } else
+        }
+        else
         {
             ret = right.Remove(i - lw - pivotWeight);
         }
@@ -182,6 +184,7 @@ public class WeightedHeap<T>
         MaybeRebalance();
         return ret;
     }
+
     public IEnumerable<(T, int)> EnumerateSorted()
     {
         if (left != null)
@@ -239,9 +242,11 @@ public class WeightedHeap<T>
 
         ls = left?.Size() ?? 0;
         rs = right?.Size() ?? 0;
-        if (ls == 0) left = null;
-        if (rs == 0) right = null;
-        if (size > 10 && 3*Math.Abs(ls - rs) > size)
+        if (ls == 0)
+            left = null;
+        if (rs == 0)
+            right = null;
+        if (size > 10 && 3 * Math.Abs(ls - rs) > size)
         {
             Copy(new WeightedHeap<T>(EnumerateSorted().ToList()));
         }

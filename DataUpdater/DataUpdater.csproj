@@ -5,7 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <Import Project="../DarknessRandomizer/LocalOverrides.targets" Condition="Exists('../DarknessRandomizer/LocalOverrides.targets')" />
+  <Import
+    Project="../DarknessRandomizer/LocalOverrides.targets"
+    Condition="Exists('../DarknessRandomizer/LocalOverrides.targets')"
+  />
   <ItemGroup>
     <ProjectReference Include="..\DarknessRandomizer\DarknessRandomizer.csproj" />
   </ItemGroup>

@@ -1,5 +1,5 @@
-﻿using PurenailCore.SystemUtil;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using PurenailCore.SystemUtil;
 
 namespace DarknessRandomizer.Data;
 
@@ -17,7 +17,7 @@ public static class Starts
                 ClusterName.CrossroadsWest,
                 ClusterName.CrossroadsEntrance,
                 ClusterName.CrossroadsLowerPass,
-                ClusterName.CrossroadsStagHub
+                ClusterName.CrossroadsStagHub,
             }
         },
         {
@@ -26,16 +26,12 @@ public static class Starts
             {
                 ClusterName.CityStorerooms,
                 ClusterName.CityEastEntrance,
-                ClusterName.CityAboveLemm
+                ClusterName.CityAboveLemm,
             }
         },
         {
             "Crystallized Mound",
-            new()
-            {
-                ClusterName.CrossroadsOutsideMound,
-                ClusterName.GroundsMain
-            }
+            new() { ClusterName.CrossroadsOutsideMound, ClusterName.GroundsMain }
         },
         {
             "East Blue Lake",
@@ -43,7 +39,7 @@ public static class Starts
             {
                 ClusterName.GroundsMain,
                 ClusterName.CityKingsStation,
-                ClusterName.CityRightHub
+                ClusterName.CityRightHub,
             }
         },
         {
@@ -55,7 +51,7 @@ public static class Starts
                 ClusterName.CrossroadsWest,
                 ClusterName.CrossroadsEntrance,
                 ClusterName.CrossroadsStagHub,
-                ClusterName.CrossroadsLowerPass
+                ClusterName.CrossroadsLowerPass,
             }
         },
         {
@@ -66,7 +62,7 @@ public static class Starts
                 ClusterName.FungalQueensStation,
                 ClusterName.FogCanyonEast,
                 ClusterName.GreenpathLowerHub,
-                ClusterName.GreenpathLowerPass
+                ClusterName.GreenpathLowerPass,
             }
         },
         {
@@ -77,7 +73,7 @@ public static class Starts
                 ClusterName.FungalOgres,
                 ClusterName.FungalUpper,
                 ClusterName.FungalQueensStation,
-                ClusterName.FogCanyonWest
+                ClusterName.FogCanyonWest,
             }
         },
         {
@@ -87,7 +83,7 @@ public static class Starts
                 ClusterName.GreenpathUpperEast,
                 ClusterName.GreenpathUpperWest,
                 ClusterName.GreenpathWest,
-                ClusterName.GreenpathLowerPass
+                ClusterName.GreenpathLowerPass,
             }
         },
         {
@@ -98,7 +94,7 @@ public static class Starts
                 ClusterName.CrystalPeaksRoot,
                 ClusterName.CrystalPeaksUpper,
                 ClusterName.CrystalPeaksWest,
-                ClusterName.CrystalPeaksMiddleBridge
+                ClusterName.CrystalPeaksMiddleBridge,
             }
         },
         {
@@ -110,7 +106,7 @@ public static class Starts
                 ClusterName.CrossroadsWest,
                 ClusterName.CrossroadsPeaksBridge,
                 ClusterName.CrossroadsLowerPass,
-                ClusterName.CrossroadsStagHub
+                ClusterName.CrossroadsStagHub,
             }
         },
         {
@@ -120,7 +116,7 @@ public static class Starts
                 ClusterName.CityKingsStation,
                 ClusterName.CityEastEntrance,
                 ClusterName.CityBridgeToBasin,
-                ClusterName.BasinFountain
+                ClusterName.BasinFountain,
             }
         },
         {
@@ -131,7 +127,7 @@ public static class Starts
                 ClusterName.GreenpathLowerHub,
                 ClusterName.GreenpathLowerPass,
                 ClusterName.FogCanyonWest,
-                ClusterName.FungalQueensStation
+                ClusterName.FungalQueensStation,
             }
         },
         {
@@ -143,7 +139,7 @@ public static class Starts
                 ClusterName.FungalElderHuWing,
                 ClusterName.FungalUpper,
                 ClusterName.FungalEntrance,
-                ClusterName.FungalQueensStation
+                ClusterName.FungalQueensStation,
             }
         },
         {
@@ -154,7 +150,7 @@ public static class Starts
                 ClusterName.CityKingsStation,
                 ClusterName.CityRightHub,
                 ClusterName.EdgeTallRooms,
-                ClusterName.EdgeEastUpper
+                ClusterName.EdgeEastUpper,
             }
         },
         {
@@ -164,7 +160,7 @@ public static class Starts
                 ClusterName.FungalQueensStation,
                 ClusterName.FogCanyonWest,
                 ClusterName.GreenpathLowerHub,
-                ClusterName.GreenpathLowerPass
+                ClusterName.GreenpathLowerPass,
             }
         },
         {
@@ -175,7 +171,7 @@ public static class Starts
                 ClusterName.KingsPass,
                 ClusterName.CliffsBaldurShell,
                 ClusterName.GreenpathUpperWest,
-                ClusterName.GreenpathWest
+                ClusterName.GreenpathWest,
             }
         },
         {
@@ -186,7 +182,7 @@ public static class Starts
                 ClusterName.CrossroadsStagHub,
                 ClusterName.BlueLake,
                 ClusterName.CrossroadsLowerPass,
-                ClusterName.CrossroadsWest
+                ClusterName.CrossroadsWest,
             }
         },
         {
@@ -198,7 +194,7 @@ public static class Starts
                 ClusterName.CrossroadsWest,
                 ClusterName.CrossroadsLowerPass,
                 ClusterName.CrossroadsStagHub,
-                ClusterName.CrossroadsEntrance
+                ClusterName.CrossroadsEntrance,
             }
         },
         {
@@ -209,10 +205,11 @@ public static class Starts
                 ClusterName.FogCanyonWestWing,
                 ClusterName.FungalQueensStation,
                 ClusterName.GreenpathLowerHub,
-                ClusterName.GreenpathLowerPass
+                ClusterName.GreenpathLowerPass,
             }
-        }
+        },
     };
 
-    public static IReadOnlyCollection<ClusterName> GetStartClusters(string start) => ProtectedStartClusters.GetOrDefault(start, () => []);
+    public static IReadOnlyCollection<ClusterName> GetStartClusters(string start) =>
+        ProtectedStartClusters.GetOrDefault(start, () => []);
 }

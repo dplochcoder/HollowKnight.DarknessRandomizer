@@ -1,13 +1,13 @@
-﻿using DarknessRandomizer.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using DarknessRandomizer.Data;
 using DarknessRandomizer.IC;
 using DarknessRandomizer.Rando;
 using ItemChanger.Internal.Menu;
 using Modding;
 using PurenailCore.ModUtil;
 using RandomizerMod;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace DarknessRandomizer;
@@ -21,12 +21,15 @@ public class DarknessRandomizer : Mod, IGlobalSettings<GlobalSettings>, ICustomM
 
     public static new void Log(string msg) => ((Loggable)Instance).Log(msg);
 
-    public DarknessRandomizer() : base("DarknessRandomizer")
+    public DarknessRandomizer()
+        : base("DarknessRandomizer")
     {
         Instance = this;
     }
 
-    public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
+    public override void Initialize(
+        Dictionary<string, Dictionary<string, GameObject>> preloadedObjects
+    )
     {
         Preloader.Instance.Initialize(preloadedObjects);
 
@@ -44,7 +47,8 @@ public class DarknessRandomizer : Mod, IGlobalSettings<GlobalSettings>, ICustomM
         RandoPlusInterop.DefineICRefs();
     }
 
-    public override List<(string, string)> GetPreloadNames() => [.. Preloader.Instance.GetPreloadNames()];
+    public override List<(string, string)> GetPreloadNames() =>
+        [.. Preloader.Instance.GetPreloadNames()];
 
     public void OnLoadGlobal(GlobalSettings s) => GS = s ?? new();
 
@@ -56,14 +60,24 @@ public class DarknessRandomizer : Mod, IGlobalSettings<GlobalSettings>, ICustomM
 
     public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
     {
-        ModMenuScreenBuilder builder = new(Localization.Localize("Darkness Randomizer Viewer"), modListMenu);
-        builder.AddButton(Localization.Localize("Open DarknessSpoiler.json"), null, OpenDarknessSpoiler);
+        ModMenuScreenBuilder builder = new(
+            Localization.Localize("Darkness Randomizer Viewer"),
+            modListMenu
+        );
+        builder.AddButton(
+            Localization.Localize("Open DarknessSpoiler.json"),
+            null,
+            OpenDarknessSpoiler
+        );
         return builder.CreateMenuScreen();
     }
 
     private void OpenDarknessSpoiler()
     {
-        string fname = Path.Combine(RandomizerMod.Logging.LogManager.RecentDirectory, "DarknessSpoiler.json");
+        string fname = Path.Combine(
+            RandomizerMod.Logging.LogManager.RecentDirectory,
+            "DarknessSpoiler.json"
+        );
         try
         {
             System.Diagnostics.Process.Start(fname);

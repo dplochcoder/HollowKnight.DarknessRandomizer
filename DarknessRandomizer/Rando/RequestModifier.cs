@@ -18,24 +18,30 @@ internal static class RequestModifier
 
     private static void SetupRefs(RequestBuilder rb)
     {
-        if (!RandoInterop.ShatteredLantern) return;
+        if (!RandoInterop.ShatteredLantern)
+            return;
 
         var itemName = RandoInterop.LanternShardItemName;
-        rb.EditItemRequest(itemName, info =>
-        {
-            info.getItemDef = () => new()
+        rb.EditItemRequest(
+            itemName,
+            info =>
             {
-                Name = itemName,
-                Pool = PoolNames.Key,
-                MajorItem = false,
-                PriceCap = 750
-            };
-        });
+                info.getItemDef = () =>
+                    new()
+                    {
+                        Name = itemName,
+                        Pool = PoolNames.Key,
+                        MajorItem = false,
+                        PriceCap = 750,
+                    };
+            }
+        );
     }
 
     private static void RandomizeDarkness(RequestBuilder rb)
     {
-        if (!RandoInterop.IsEnabled) return;
+        if (!RandoInterop.IsEnabled)
+            return;
 
         RandoInterop.LS = new(rb.gs, rb.ctx.StartDef);
     }
@@ -61,16 +67,23 @@ internal static class RequestModifier
             numShards += DarknessRandomizer.GS.RandomizationSettings.TwoDupeShards ? 2 : 0;
             numShards *= rb.gs.DuplicateItemSettings.DuplicateUniqueKeys ? 2 : 1;
             rb.AddItemByName(lanternShardItemName, LanternShards.TotalNumShards);
-            rb.AddItemByName(Placeholder(lanternShardItemName), numShards - LanternShards.TotalNumShards);
+            rb.AddItemByName(
+                Placeholder(lanternShardItemName),
+                numShards - LanternShards.TotalNumShards
+            );
         }
         else
         {
             rb.RemoveFromVanilla(LocationNames.Sly, lanternItemName);
             rb.RemoveFromVanilla(LocationNames.Sly, Placeholder(lanternItemName));
-            
+
             for (int i = 0; i < LanternShards.TotalNumShards; ++i)
             {
-                VanillaDef def = new(lanternShardItemName, LocationNames.Sly, [new("GEO", 300 + i * 100)]);
+                VanillaDef def = new(
+                    lanternShardItemName,
+                    LocationNames.Sly,
+                    [new("GEO", 300 + i * 100)]
+                );
                 rb.AddToVanilla(def);
             }
         }

@@ -1,12 +1,11 @@
-﻿using PurenailCore.SystemUtil;
-using RandomizerCore.Logic;
-using RandomizerMod.RC;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-
+using PurenailCore.SystemUtil;
+using RandomizerCore.Logic;
+using RandomizerMod.RC;
 using JsonUtil = PurenailCore.SystemUtil.JsonUtil<DarknessRandomizer.DarknessRandomizer>;
 
 namespace DarknessRandomizer.Data;
@@ -30,7 +29,11 @@ public static class DataUpdater
         public int TotalCursedDarknessBudget;
     }
 
-    private static void SyncDicts<K,V1,V2>(IDictionary<K, V1> src, IDictionary<K, V2> dst, Func<K, V2> creator)
+    private static void SyncDicts<K, V1, V2>(
+        IDictionary<K, V1> src,
+        IDictionary<K, V2> dst,
+        Func<K, V2> creator
+    )
     {
         // Add missing values.
         foreach (var key in src.Keys)
@@ -56,9 +59,15 @@ public static class DataUpdater
         Console.WriteLine("Updating data");
 
         // Load all the data.
-        var SM = RawSceneMetadata.LoadFromPath($"{root}/DarknessRandomizer/Resources/Data/scene_metadata.json");
-        var SD = RawSceneData.LoadFromPath($"{root}/DarknessRandomizer/Resources/Data/scene_data.json");
-        var CD = RawClusterData.LoadFromPath($"{root}/DarknessRandomizer/Resources/Data/cluster_data.json");
+        var SM = RawSceneMetadata.LoadFromPath(
+            $"{root}/DarknessRandomizer/Resources/Data/scene_metadata.json"
+        );
+        var SD = RawSceneData.LoadFromPath(
+            $"{root}/DarknessRandomizer/Resources/Data/scene_data.json"
+        );
+        var CD = RawClusterData.LoadFromPath(
+            $"{root}/DarknessRandomizer/Resources/Data/cluster_data.json"
+        );
 
         // We delete scenes from metadata to not track them; make sure adjacencies are also updated.
         foreach (var e in SM)
@@ -103,7 +112,8 @@ public static class DataUpdater
         {
             var scene = e.Key;
             var sData = e.Value;
-            if (sData.Cluster == "UNASSIGNED") continue;
+            if (sData.Cluster == "UNASSIGNED")
+                continue;
 
             sceneToCluster[scene] = sData.Cluster;
             clusterToScenes.GetOrAddNew(sData.Cluster).Add(scene);
@@ -120,8 +130,11 @@ public static class DataUpdater
             {
                 foreach (var aScene in SM[scene].AdjacentScenes)
                 {
-                    if (sceneToCluster.TryGetValue(aScene, out string aCluster) && aCluster != cluster)
-                    { 
+                    if (
+                        sceneToCluster.TryGetValue(aScene, out string aCluster)
+                        && aCluster != cluster
+                    )
+                    {
                         clusterAdjacency.GetOrAddNew(cluster).Add(aCluster);
                     }
                 }
@@ -178,10 +191,17 @@ public static class DataUpdater
                 var aCluster = e2.Key;
                 var aData = CD[aCluster];
                 var rd = e2.Value;
-                if (rd == RelativeDarkness.Disconnected
-                    || (aData.AdjacentClusters.TryGetValue(cluster, out RelativeDarkness ard) && ard == RelativeDarkness.Disconnected))
+                if (
+                    rd == RelativeDarkness.Disconnected
+                    || (
+                        aData.AdjacentClusters.TryGetValue(cluster, out RelativeDarkness ard)
+                        && ard == RelativeDarkness.Disconnected
+                    )
+                )
                 {
-                    deferred.Add(() => cData.AdjacentClusters[aCluster] = RelativeDarkness.Disconnected);
+                    deferred.Add(() =>
+                        cData.AdjacentClusters[aCluster] = RelativeDarkness.Disconnected
+                    );
                     aData.AdjacentClusters[cluster] = RelativeDarkness.Disconnected;
                     continue;
                 }
@@ -197,7 +217,9 @@ public static class DataUpdater
                 }
                 else if (canBeDark && !aCanBeDark)
                 {
-                    deferred.Add(() => cData.AdjacentClusters[aCluster] = RelativeDarkness.Brighter);
+                    deferred.Add(() =>
+                        cData.AdjacentClusters[aCluster] = RelativeDarkness.Brighter
+                    );
                     aData.AdjacentClusters[cluster] = RelativeDarkness.Darker;
                     continue;
                 }
@@ -209,10 +231,14 @@ public static class DataUpdater
                 }
 
                 // If we're unspecified, let the other side force our hand.
-                if (rd == RelativeDarkness.Unspecified) continue;
+                if (rd == RelativeDarkness.Unspecified)
+                    continue;
 
                 // Inspect and validate te opposing cluster.
-                if (!aData.AdjacentClusters.TryGetValue(cluster, out ard) || ard == RelativeDarkness.Unspecified)
+                if (
+                    !aData.AdjacentClusters.TryGetValue(cluster, out ard)
+                    || ard == RelativeDarkness.Unspecified
+                )
                 {
                     aData.AdjacentClusters[cluster] = rd.Opposite();
                 }
@@ -267,26 +293,44 @@ public static class DataUpdater
         RewriteJsonFile(SD, $"{root}/DarknessRandomizer/Resources/Data/scene_data.json");
         RewriteJsonFile(CD, $"{root}/DarknessRandomizer/Resources/Data/cluster_data.json");
 
-        UpdateCSFile($"{root}/DarknessRandomizer/Data/SceneName.cs", "INSERT_SCENE_NAMES", SM,
-            (n, sm) => $"public static readonly SceneName {CSharpClean(sm.Alias)} = new(\"{n}\")");
-        UpdateCSFile($"{root}/DarknessRandomizer/Data/ClusterName.cs", "INSERT_CLUSTER_NAMES", CD,
-            (n, cd) => $"public static readonly ClusterName {CSharpClean(n)} = new(\"{n}\")");
-        UpdateCSFile($"{root}/DarknessRandomizer/Data/WaypointName.cs", "INSERT_WAYPOINTS", GetWaypointsDict(),
-            (k, v) => $"public const string {k} = \"{v}\"");
+        UpdateCSFile(
+            $"{root}/DarknessRandomizer/Data/SceneName.cs",
+            "INSERT_SCENE_NAMES",
+            SM,
+            (n, sm) => $"public static readonly SceneName {CSharpClean(sm.Alias)} = new(\"{n}\")"
+        );
+        UpdateCSFile(
+            $"{root}/DarknessRandomizer/Data/ClusterName.cs",
+            "INSERT_CLUSTER_NAMES",
+            CD,
+            (n, cd) => $"public static readonly ClusterName {CSharpClean(n)} = new(\"{n}\")"
+        );
+        UpdateCSFile(
+            $"{root}/DarknessRandomizer/Data/WaypointName.cs",
+            "INSERT_WAYPOINTS",
+            GetWaypointsDict(),
+            (k, v) => $"public const string {k} = \"{v}\""
+        );
         Console.WriteLine("Updated data!");
     }
 
     private static DisplayDarknessOverrides CleanDDO(RawSceneData sceneData)
     {
         var ddo = sceneData.DisplayDarknessOverrides;
-        if (ddo == null) return null;
+        if (ddo == null)
+            return null;
 
         ddo.DarknessRegions.RemoveAll(dr => dr.Darkness == ddo.SceneDarkness);
         ddo.DarknessRegions.Sort((a, b) => Math.Sign((a.X != b.X) ? a.X - b.X : a.Y - b.Y));
 
-        ddo.Conditions.RemoveWhere(d => d < sceneData.MinimumDarkness || d > sceneData.MaximumDarkness);
-        ddo.Conditions.RemoveWhere(d => ddo.SceneDarkness == d && ddo.DarknessRegions.All(dr => dr.Darkness == d));
-        if (ddo.Conditions.Count == 0) return null;
+        ddo.Conditions.RemoveWhere(d =>
+            d < sceneData.MinimumDarkness || d > sceneData.MaximumDarkness
+        );
+        ddo.Conditions.RemoveWhere(d =>
+            ddo.SceneDarkness == d && ddo.DarknessRegions.All(dr => dr.Darkness == d)
+        );
+        if (ddo.Conditions.Count == 0)
+            return null;
 
         return ddo;
     }
@@ -300,8 +344,11 @@ public static class DataUpdater
         }
     }
 
-    private static Stats ComputeDataStats(SortedDictionary<string, RawSceneMetadata> SM,
-        SortedDictionary<string, RawSceneData> SD, SortedDictionary<string, RawClusterData> CD)
+    private static Stats ComputeDataStats(
+        SortedDictionary<string, RawSceneMetadata> SM,
+        SortedDictionary<string, RawSceneData> SD,
+        SortedDictionary<string, RawClusterData> CD
+    )
     {
         Stats stats = new();
         foreach (var e in CD)
@@ -359,20 +406,28 @@ public static class DataUpdater
         JsonUtil.Serialize(data, path);
     }
 
-    private static string CSharpClean(string name) => name.Replace("_", "").Replace("'", "").Replace("-", "");
+    private static string CSharpClean(string name) =>
+        name.Replace("_", "").Replace("'", "").Replace("-", "");
 
     private delegate string CSAssignment<K, V>(K key, V value);
 
-    private static void UpdateCSFile<K, V>(string path, string marker, IDictionary<K, V> dict, CSAssignment<K, V> assigner)
+    private static void UpdateCSFile<K, V>(
+        string path,
+        string marker,
+        IDictionary<K, V> dict,
+        CSAssignment<K, V> assigner
+    )
     {
         using StreamReader sr = new(path);
         List<string> outLines = [];
-        string line, indent;
+        string line,
+            indent;
         int state = 0;
         while (true)
         {
             line = sr.ReadLine();
-            if (line == null) break;
+            if (line == null)
+                break;
 
             if (state == 0)
             {

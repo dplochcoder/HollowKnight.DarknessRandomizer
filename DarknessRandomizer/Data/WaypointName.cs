@@ -77,8 +77,10 @@ public static class WaypointName
     public const string BrokeCliffsDarkRoomQuakeFloor = "Broke_Cliffs_Dark_Room_Quake_Floor";
     public const string BrokeCryptsOneWayFloor = "Broke_Crypts_One_Way_Floor";
     public const string BrokeCrystallizedMoundQuakeFloor = "Broke_Crystallized_Mound_Quake_Floor";
-    public const string BrokeCrystalPeakDiveEggQuakeFloor = "Broke_Crystal_Peak_Dive_Egg_Quake_Floor";
-    public const string BrokeCrystalPeakEntranceQuakeFloor = "Broke_Crystal_Peak_Entrance_Quake_Floor";
+    public const string BrokeCrystalPeakDiveEggQuakeFloor =
+        "Broke_Crystal_Peak_Dive_Egg_Quake_Floor";
+    public const string BrokeCrystalPeakEntranceQuakeFloor =
+        "Broke_Crystal_Peak_Entrance_Quake_Floor";
     public const string BrokeDungDefenderQuakeFloor = "Broke_Dung_Defender_Quake_Floor";
     public const string BrokeEdgeJournalQuakeFloor = "Broke_Edge_Journal_Quake_Floor";
     public const string BrokeFlukemarmQuakeFloor = "Broke_Flukemarm_Quake_Floor";
@@ -294,8 +296,10 @@ public static class WaypointName
     public const string WarpLifebloodCoretoAbyss = "Warp-Lifeblood_Core_to_Abyss";
     public const string WarpPalaceGroundstoWhitePalace = "Warp-Palace_Grounds_to_White_Palace";
     public const string WarpPathofPainComplete = "Warp-Path_of_Pain_Complete";
-    public const string WarpWhitePalaceAtriumtoPalaceGrounds = "Warp-White_Palace_Atrium_to_Palace_Grounds";
-    public const string WarpWhitePalaceEntrancetoPalaceGrounds = "Warp-White_Palace_Entrance_to_Palace_Grounds";
+    public const string WarpWhitePalaceAtriumtoPalaceGrounds =
+        "Warp-White_Palace_Atrium_to_Palace_Grounds";
+    public const string WarpWhitePalaceEntrancetoPalaceGrounds =
+        "Warp-White_Palace_Entrance_to_Palace_Grounds";
     public const string Waterways01 = "Waterways_01";
     public const string Waterways02 = "Waterways_02";
     public const string Waterways04 = "Waterways_04";

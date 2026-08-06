@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace DarknessRandomizer.Rando;
 
@@ -8,7 +8,7 @@ public enum DarknessLevel
     Dim,
     Dark,
     Darker,
-    Cursed
+    Cursed,
 }
 
 public class RandomizationSettings
@@ -26,7 +26,8 @@ public class RandomizationSettings
 
     public int GetDarknessBudget(Random r)
     {
-        int min, max;
+        int min,
+            max;
         switch (DarknessLevel)
         {
             case DarknessLevel.Dim:

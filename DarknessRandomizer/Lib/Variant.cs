@@ -15,8 +15,11 @@ public class Variant<A, B>
         this.b = b;
     }
 
-    public Variant(A a) : this(true, a, default) { }
-    public Variant(B b) : this(false, default, b) { }
+    public Variant(A a)
+        : this(true, a, default) { }
+
+    public Variant(B b)
+        : this(false, default, b) { }
 
     public A First => isFirst ? a! : throw new ArgumentException("Invalid Variant access");
 

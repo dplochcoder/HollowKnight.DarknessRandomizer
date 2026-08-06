@@ -1,13 +1,17 @@
-﻿using DarknessRandomizer.Data;
+﻿using System.Collections.Generic;
+using DarknessRandomizer.Data;
 using DarknessRandomizer.Rando;
 using PurenailCore.SystemUtil;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.Settings;
-using System.Collections.Generic;
 
 namespace DarknessRandomizer.Lib;
 
-public class ChaosDarknessAlgorithm(GenerationSettings GS, StartDef start, RandomizationSettings DRS) : DarknessAlgorithm(GS, start, DRS)
+public class ChaosDarknessAlgorithm(
+    GenerationSettings GS,
+    StartDef start,
+    RandomizationSettings DRS
+) : DarknessAlgorithm(GS, start, DRS)
 {
     private void GetPerSceneStats(SceneName s, out Darkness maxDarkness, out int costWeight)
     {
@@ -24,7 +28,10 @@ public class ChaosDarknessAlgorithm(GenerationSettings GS, StartDef start, Rando
         costWeight = cData.CostWeight ?? (50 * cData.SceneCount) / cData.SceneCount;
     }
 
-    public override void SpreadDarkness(out SceneDarknessDict darknessOverrides, out AlgorithmStats stats)
+    public override void SpreadDarkness(
+        out SceneDarknessDict darknessOverrides,
+        out AlgorithmStats stats
+    )
     {
         // Phase 0: Everything starts as bright.
         darknessOverrides = new();
@@ -39,7 +46,11 @@ public class ChaosDarknessAlgorithm(GenerationSettings GS, StartDef start, Rando
 
         // Phase 1: assign darkness and semi-darkness randomly.
         int semiDarknessAvailable = darknessAvailable;
-        for (int i = 0; i < scenes.Count && (darknessAvailable > 0 || semiDarknessAvailable > 0); ++i)
+        for (
+            int i = 0;
+            i < scenes.Count && (darknessAvailable > 0 || semiDarknessAvailable > 0);
+            ++i
+        )
         {
             var s = scenes[i];
             GetPerSceneStats(s, out Darkness maxDarkness, out int costWeight);

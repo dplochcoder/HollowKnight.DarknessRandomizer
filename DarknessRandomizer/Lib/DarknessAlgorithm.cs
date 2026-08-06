@@ -1,9 +1,9 @@
-﻿using DarknessRandomizer.Data;
+﻿using System;
+using System.Collections.Generic;
+using DarknessRandomizer.Data;
 using DarknessRandomizer.Rando;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.Settings;
-using System;
-using System.Collections.Generic;
 
 namespace DarknessRandomizer.Lib;
 
@@ -18,7 +18,14 @@ public interface ICustomDarknessAlgorithmStats { }
 
 public abstract class DarknessAlgorithm
 {
-    public static DarknessAlgorithm Select(GenerationSettings GS, StartDef start, RandomizationSettings DRS) => DRS.Chaos ? new ChaosDarknessAlgorithm(GS, start, DRS) : new DefaultDarknessAlgorithm(GS, start, DRS);
+    public static DarknessAlgorithm Select(
+        GenerationSettings GS,
+        StartDef start,
+        RandomizationSettings DRS
+    ) =>
+        DRS.Chaos
+            ? new ChaosDarknessAlgorithm(GS, start, DRS)
+            : new DefaultDarknessAlgorithm(GS, start, DRS);
 
     protected readonly GenerationSettings GS;
     protected readonly StartDef start;
@@ -69,7 +76,14 @@ public abstract class DarknessAlgorithm
             foreach (var cluster in ClusterName.All())
             {
                 var cData = ClusterData.Get(cluster);
-                if (cData.IsInPathOfPain || (GS.LongLocationSettings.WhitePalaceRando == LongLocationSettings.WPSetting.ExcludeWhitePalace && cData.IsInWhitePalace))
+                if (
+                    cData.IsInPathOfPain
+                    || (
+                        GS.LongLocationSettings.WhitePalaceRando
+                            == LongLocationSettings.WPSetting.ExcludeWhitePalace
+                        && cData.IsInWhitePalace
+                    )
+                )
                 {
                     forcedBrightClusters.Add(cluster);
                 }
@@ -77,5 +91,8 @@ public abstract class DarknessAlgorithm
         }
     }
 
-    public abstract void SpreadDarkness(out SceneDarknessDict sceneDarkness, out AlgorithmStats stats);
+    public abstract void SpreadDarkness(
+        out SceneDarknessDict sceneDarkness,
+        out AlgorithmStats stats
+    );
 }

@@ -1,12 +1,12 @@
-﻿using MenuChanger;
+﻿using System;
+using System.Collections.Generic;
+using MenuChanger;
 using MenuChanger.Extensions;
 using MenuChanger.MenuElements;
 using MenuChanger.MenuPanels;
 using Modding;
 using RandomizerMod.Menu;
 using RandoSettingsManager;
-using System;
-using System.Collections.Generic;
 using static RandomizerMod.Localization;
 
 namespace DarknessRandomizer.Rando;
@@ -26,7 +26,8 @@ internal class ConnectionMenu
         }
     }
 
-    private static void HookRandoSettingsManager() => RandoSettingsManagerMod.Instance.RegisterConnection(new SettingsProxy());
+    private static void HookRandoSettingsManager() =>
+        RandoSettingsManagerMod.Instance.RegisterConnection(new SettingsProxy());
 
     public static void OnRandomizerMenuConstruction(MenuPage page) => Instance = new(page);
 
@@ -43,7 +44,9 @@ internal class ConnectionMenu
     private MenuItem<bool> shatteredLantern;
     private MenuItem<bool> twoDupeShards;
 
-    private static T Lookup<T>(MenuElementFactory<RandomizationSettings> factory, string name) where T : MenuItem => factory.ElementLookup[name] as T ?? throw new ArgumentException("Menu error");
+    private static T Lookup<T>(MenuElementFactory<RandomizationSettings> factory, string name)
+        where T : MenuItem =>
+        factory.ElementLookup[name] as T ?? throw new ArgumentException("Menu error");
 
     private void LockIfFalse(MenuItem<bool> src, List<ILockable> dest)
     {
@@ -51,8 +54,10 @@ internal class ConnectionMenu
         {
             foreach (var lockable in dest)
             {
-                if (value) lockable.Unlock();
-                else lockable.Lock();
+                if (value)
+                    lockable.Unlock();
+                else
+                    lockable.Lock();
             }
             SetEnabledColor();
         }
@@ -61,7 +66,10 @@ internal class ConnectionMenu
         onChange(src.Value);
     }
 
-    private void SetEnabledColor() => entryButton.Text.color = DarknessRandomizer.GS.RandomizationSettings.IsEnabled ? Colors.TRUE_COLOR : Colors.DEFAULT_COLOR; 
+    private void SetEnabledColor() =>
+        entryButton.Text.color = DarknessRandomizer.GS.RandomizationSettings.IsEnabled
+            ? Colors.TRUE_COLOR
+            : Colors.DEFAULT_COLOR;
 
     private ConnectionMenu(MenuPage landingPage)
     {
@@ -81,7 +89,14 @@ internal class ConnectionMenu
         LockIfFalse(shatteredLantern, [twoDupeShards]);
         SetEnabledColor();
 
-        GridItemPanel gridItemPanel = new(mainPage, SpaceParameters.TOP_CENTER_UNDER_TITLE, 2, SpaceParameters.VSPACE_MEDIUM, SpaceParameters.HSPACE_LARGE, true);
+        GridItemPanel gridItemPanel = new(
+            mainPage,
+            SpaceParameters.TOP_CENTER_UNDER_TITLE,
+            2,
+            SpaceParameters.VSPACE_MEDIUM,
+            SpaceParameters.HSPACE_LARGE,
+            true
+        );
         gridItemPanel.Insert(0, 0, randomizeDarkness);
         gridItemPanel.Insert(0, 1, shatteredLantern);
         gridItemPanel.Insert(1, 0, darknessLevel);

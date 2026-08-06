@@ -1,7 +1,7 @@
-﻿using ItemChanger;
+﻿using System;
+using ItemChanger;
 using ItemChanger.Components;
 using ItemChanger.Tags;
-using System;
 using UnityEngine;
 
 namespace DarknessRandomizer.IC;
@@ -25,20 +25,24 @@ internal class LanternShardUIDef(bool isFinal) : UIDef
 
     public override string GetPostviewName()
     {
-        if (IsFinal) return $"Lantern Shard (#{LanternShards.TotalNumShards})";
+        if (IsFinal)
+            return $"Lantern Shard (#{LanternShards.TotalNumShards})";
 
         int count = LanternShards.GetPDShardCount();
-        return count >= LanternShards.TotalNumShards ? "Lantern Shard" : $"Lantern Shard (#{count})";
+        return count >= LanternShards.TotalNumShards
+            ? "Lantern Shard"
+            : $"Lantern Shard (#{count})";
     }
 
-    public override string GetShopDesc() => LanternShards.GetPDShardCount() switch
-    {
-        0 => "I suppose this piece of trash is worth something?",
-        1 => "What are you going to do with two pieces of trash?",
-        2 => "Are you going to weld these together or something? How?!",
-        3 => "Wow, you actually found the whole thing. I'm impressed.",
-        _ => "I hear that with two lanterns you can explore advanced darkness.",
-    };
+    public override string GetShopDesc() =>
+        LanternShards.GetPDShardCount() switch
+        {
+            0 => "I suppose this piece of trash is worth something?",
+            1 => "What are you going to do with two pieces of trash?",
+            2 => "Are you going to weld these together or something? How?!",
+            3 => "Wow, you actually found the whole thing. I'm impressed.",
+            _ => "I hear that with two lanterns you can explore advanced darkness.",
+        };
 
     public override Sprite GetSprite() => sprite.Value;
 
@@ -54,7 +58,8 @@ internal class LanternShardUIDef(bool isFinal) : UIDef
                 null,
                 "The last shard is collected, the whole assembled.",
                 "Fear the darkness no longer.",
-                callback);
+                callback
+            );
             return;
         }
 
@@ -71,8 +76,12 @@ internal class LanternShardUIDef(bool isFinal) : UIDef
 
 public class AbstractLanternShardItem : AbstractItem
 {
-    private const string InteropMessage = ConnectionMetadataInjector.SupplementalMetadata.InteropTagMessage;
-    private const string InteropItemPoolGroup = nameof(ConnectionMetadataInjector.Util.PoolGroup.Keys);
+    private const string InteropMessage = ConnectionMetadataInjector
+        .SupplementalMetadata
+        .InteropTagMessage;
+    private const string InteropItemPoolGroup = nameof(
+        ConnectionMetadataInjector.Util.PoolGroup.Keys
+    );
 
     protected AbstractLanternShardItem(string name)
     {
@@ -84,16 +93,19 @@ public class AbstractLanternShardItem : AbstractItem
         interop.Properties["ModSource"] = DarknessRandomizer.Instance.GetName();
     }
 
-    public override void GiveImmediate(GiveInfo info) => PlayerData.instance.SetInt(LanternShards.PDName, LanternShards.GetPDShardCount() + 1);
+    public override void GiveImmediate(GiveInfo info) =>
+        PlayerData.instance.SetInt(LanternShards.PDName, LanternShards.GetPDShardCount() + 1);
 
-    public override bool Redundant() => PlayerData.instance.GetBool(nameof(PlayerData.instance.hasLantern));
+    public override bool Redundant() =>
+        PlayerData.instance.GetBool(nameof(PlayerData.instance.hasLantern));
 }
 
 public class AbstractBaseLanternShardItem : AbstractLanternShardItem
 {
     public string FinalShardItemName;
 
-    protected AbstractBaseLanternShardItem(string name, string finalName) : base(name)
+    protected AbstractBaseLanternShardItem(string name, string finalName)
+        : base(name)
     {
         FinalShardItemName = finalName;
         UIDef = new LanternShardUIDef(false);
@@ -113,7 +125,8 @@ public class AbstractFinalLanternShardItem : AbstractLanternShardItem
 {
     public string LanternItemName;
 
-    protected AbstractFinalLanternShardItem(string name, string lanternName) : base(name)
+    protected AbstractFinalLanternShardItem(string name, string lanternName)
+        : base(name)
     {
         LanternItemName = lanternName;
         UIDef = new LanternShardUIDef(true);
@@ -130,7 +143,8 @@ public class FinalLanternShardItem : AbstractFinalLanternShardItem
 {
     public const string ItemName = "Final_Lantern_Shard";
 
-    public FinalLanternShardItem() : base(ItemName, ItemNames.Lumafly_Lantern) { }
+    public FinalLanternShardItem()
+        : base(ItemName, ItemNames.Lumafly_Lantern) { }
 
     public override AbstractItem Clone() => new FinalLanternShardItem();
 }
@@ -139,7 +153,8 @@ public class LanternShardItem : AbstractBaseLanternShardItem
 {
     public const string ItemName = "Lantern_Shard";
 
-    public LanternShardItem() : base(ItemName, FinalLanternShardItem.ItemName) { }
+    public LanternShardItem()
+        : base(ItemName, FinalLanternShardItem.ItemName) { }
 
     public override AbstractItem Clone() => new LanternShardItem();
 

@@ -1,10 +1,10 @@
-﻿using DarknessRandomizer.Data;
+﻿using System.Collections.Generic;
+using System.Linq;
+using DarknessRandomizer.Data;
 using DarknessRandomizer.IC;
 using ItemChanger;
 using Newtonsoft.Json;
 using RandomizerCore.Logic;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace DarknessRandomizer.Rando;
 
@@ -21,7 +21,12 @@ public class DarknessVariableResolver : VariableResolver
         // load, where LS is no longer populated.
         if (RandoInterop.LS != null)
             return RandoInterop.LS.DarknessOverrides.TryGetValue(sceneName, out darkness);
-        else if (ItemChangerMod.Modules.Get<DarknessRandomizerModule>()?.DarknessOverrides.TryGetValue(sceneName, out darkness) ?? false)
+        else if (
+            ItemChangerMod
+                .Modules.Get<DarknessRandomizerModule>()
+                ?.DarknessOverrides.TryGetValue(sceneName, out darkness)
+            ?? false
+        )
             return true;
         else
         {
@@ -32,15 +37,19 @@ public class DarknessVariableResolver : VariableResolver
 
     public override bool TryMatch(LogicManager lm, string term, out LogicVariable variable)
     {
-        if (TryMatchPrefix(term, "$DarknessLevel", out var parameters) && parameters.Length == 1 &&
-            SceneName.TryGetValue(parameters[0], out var sceneName))
+        if (
+            TryMatchPrefix(term, "$DarknessLevel", out var parameters)
+            && parameters.Length == 1
+            && SceneName.TryGetValue(parameters[0], out var sceneName)
+        )
         {
             variable = new DarknessLevelInt(sceneName);
             return true;
         }
 
 #pragma warning disable CS8601 // Possible null reference assignment.
-        if (Inner?.TryMatch(lm, term, out variable) ?? false) return true;
+        if (Inner?.TryMatch(lm, term, out variable) ?? false)
+            return true;
 #pragma warning restore CS8601 // Possible null reference assignment.
 
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
@@ -61,7 +70,11 @@ internal class DarknessLevelInt(SceneName sceneName) : LogicInt
     // Darkness levels don't change during randomization, so it's safe to cache this.
     private int? cache;
 
-    public override int GetValue(object? sender, ProgressionManager pm) => cache ?? (cache = GetValueImpl()).Value;
+    public override int GetValue(object? sender, ProgressionManager pm) =>
+        cache ?? (cache = GetValueImpl()).Value;
 
-    private int GetValueImpl() => DarknessVariableResolver.TryGetDarkness(sceneName, out Darkness d) ? (int)d : (int)Darkness.Bright;
+    private int GetValueImpl() =>
+        DarknessVariableResolver.TryGetDarkness(sceneName, out Darkness d)
+            ? (int)d
+            : (int)Darkness.Bright;
 }

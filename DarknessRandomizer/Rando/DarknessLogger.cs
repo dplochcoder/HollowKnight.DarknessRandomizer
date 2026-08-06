@@ -1,6 +1,5 @@
-﻿using RandomizerMod.Logging;
-using System.IO;
-
+﻿using System.IO;
+using RandomizerMod.Logging;
 using JsonUtil = PurenailCore.SystemUtil.JsonUtil<DarknessRandomizer.DarknessRandomizer>;
 
 namespace DarknessRandomizer.Rando;

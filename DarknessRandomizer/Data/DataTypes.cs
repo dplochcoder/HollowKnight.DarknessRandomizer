@@ -1,9 +1,8 @@
-﻿using DarknessRandomizer.Lib;
+﻿using System.Collections.Generic;
+using System.Linq;
+using DarknessRandomizer.Lib;
 using DarknessRandomizer.Rando;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Linq;
-
 using JsonUtil = PurenailCore.SystemUtil.JsonUtil<DarknessRandomizer.DarknessRandomizer>;
 
 namespace DarknessRandomizer.Data;
@@ -14,7 +13,8 @@ public class SceneMetadata : BaseSceneMetadata<SceneName>
     public class SMDict : SceneDictionary<SceneMetadata> { }
 
     private static readonly SMDict data = JsonUtil.DeserializeEmbedded<SMDict>(
-            "DarknessRandomizer.Resources.Data.scene_metadata.json");
+        "DarknessRandomizer.Resources.Data.scene_metadata.json"
+    );
 
     public static SceneMetadata Get(SceneName sceneName) => data[sceneName];
 
@@ -27,7 +27,8 @@ public class SceneData : BaseSceneData<ClusterName>
     public class SDDict : SceneDictionary<SceneData> { }
 
     private static readonly SDDict data = JsonUtil.DeserializeEmbedded<SDDict>(
-            "DarknessRandomizer.Resources.Data.scene_data.json");
+        "DarknessRandomizer.Resources.Data.scene_data.json"
+    );
 
     public static SceneData Get(SceneName sceneName) => data[sceneName];
 
@@ -46,7 +47,8 @@ public class ClusterData : BaseClusterData<SceneName, ClusterName>
     public class RDDict : ClusterDictionary<RelativeDarkness> { }
 
     private static readonly CDDict data = JsonUtil.DeserializeEmbedded<CDDict>(
-            "DarknessRandomizer.Resources.Data.cluster_data.json");
+        "DarknessRandomizer.Resources.Data.cluster_data.json"
+    );
 
     public AliasDict SceneNames = new();
 
@@ -60,17 +62,23 @@ public class ClusterData : BaseClusterData<SceneName, ClusterName>
 
     protected override IEnumerable<SceneName> EnumerateSceneNames() => SceneNames.Keys;
 
-    protected override IEnumerable<KeyValuePair<ClusterName, RelativeDarkness>> EnumerateRelativeDarkness() => AdjacentClusters.Enumerate();
+    protected override IEnumerable<
+        KeyValuePair<ClusterName, RelativeDarkness>
+    > EnumerateRelativeDarkness() => AdjacentClusters.Enumerate();
 
-    public bool IsInWhitePalace => EnumerateSceneNames().Any(s => SceneMetadata.Get(s).MapArea == "White Palace");
+    public bool IsInWhitePalace =>
+        EnumerateSceneNames().Any(s => SceneMetadata.Get(s).MapArea == "White Palace");
 
-    public bool IsInPathOfPain => EnumerateSceneNames().Any(s => SceneMetadata.Get(s).Alias.StartsWith("POP_"));
+    public bool IsInPathOfPain =>
+        EnumerateSceneNames().Any(s => SceneMetadata.Get(s).Alias.StartsWith("POP_"));
 
     public static void Load() => DarknessRandomizer.Log("Loaded ClusterData");
 
-    public bool CanBeDarknessSource(RandomizationSettings settings) => CanBeDarknessSource(SceneData.Get, settings);
+    public bool CanBeDarknessSource(RandomizationSettings settings) =>
+        CanBeDarknessSource(SceneData.Get, settings);
 
-    public Darkness MaximumDarkness(RandomizationSettings settings) => MaximumDarkness(SceneData.Get, settings);
+    public Darkness MaximumDarkness(RandomizationSettings settings) =>
+        MaximumDarkness(SceneData.Get, settings);
 
     public Darkness MinimumDarkness() => MinimumDarkness(SceneData.Get);
 }

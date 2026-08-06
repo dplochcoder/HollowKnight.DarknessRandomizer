@@ -1,8 +1,8 @@
-﻿using DarknessRandomizer.Data;
+﻿using System.Linq;
+using DarknessRandomizer.Data;
 using DarknessRandomizer.Rando;
 using RandomizerMod.RandomizerData;
 using RandomizerMod.Settings;
-using System.Linq;
 
 namespace DarknessRandomizer.Lib;
 
@@ -11,12 +11,19 @@ public record DefaultDarknessAlgorithmStats : ICustomDarknessAlgorithmStats
     public ClusterDarknessDict ClusterDarkness = new();
 }
 
-public class DefaultDarknessAlgorithm(GenerationSettings GS, StartDef start, RandomizationSettings DRS) : DarknessAlgorithm(GS, start, DRS)
+public class DefaultDarknessAlgorithm(
+    GenerationSettings GS,
+    StartDef start,
+    RandomizationSettings DRS
+) : DarknessAlgorithm(GS, start, DRS)
 {
     private readonly ClusterDarknessDict clusterDarkness = new();
     private readonly WeightedHeap<ClusterName> darkCandidates = new();
 
-    public override void SpreadDarkness(out SceneDarknessDict darknessOverrides, out AlgorithmStats stats)
+    public override void SpreadDarkness(
+        out SceneDarknessDict darknessOverrides,
+        out AlgorithmStats stats
+    )
     {
         // Phase 0: Everything starts as bright.
         foreach (var c in ClusterName.All())
@@ -57,7 +64,7 @@ public class DefaultDarknessAlgorithm(GenerationSettings GS, StartDef start, Ran
         foreach (var name in ClusterName.All())
         {
             var darkness = clusterDarkness[name];
-            
+
             if (darkness == Darkness.Dark)
             {
                 var cData = ClusterData.Get(name);
@@ -65,7 +72,10 @@ public class DefaultDarknessAlgorithm(GenerationSettings GS, StartDef start, Ran
                 {
                     var aName = e.Key;
                     var rd = e.Value;
-                    if (clusterDarkness[aName] == Darkness.Bright && rd != RelativeDarkness.Disconnected)
+                    if (
+                        clusterDarkness[aName] == Darkness.Bright
+                        && rd != RelativeDarkness.Disconnected
+                    )
                     {
                         clusterDarkness[aName] = Darkness.SemiDark;
                     }
@@ -92,22 +102,36 @@ public class DefaultDarknessAlgorithm(GenerationSettings GS, StartDef start, Ran
             var aName = e.Key;
             var rd = e.Value;
 
-            if (clusterDarkness[aName] == Darkness.Dark || rd == RelativeDarkness.Disconnected || forcedBrightClusters.Contains(aName))
+            if (
+                clusterDarkness[aName] == Darkness.Dark
+                || rd == RelativeDarkness.Disconnected
+                || forcedBrightClusters.Contains(aName)
+            )
             {
                 continue;
             }
 
             var aData = ClusterData.Get(aName);
-            if (!darkCandidates.Contains(aName) && aData.MaximumDarkness(DRS) == Darkness.Dark
-                && aData.AdjacentClusters.Enumerate().All(
-                    e => e.Value != RelativeDarkness.Darker || clusterDarkness[e.Key] == Darkness.Dark))
+            if (
+                !darkCandidates.Contains(aName)
+                && aData.MaximumDarkness(DRS) == Darkness.Dark
+                && aData
+                    .AdjacentClusters.Enumerate()
+                    .All(e =>
+                        e.Value != RelativeDarkness.Darker
+                        || clusterDarkness[e.Key] == Darkness.Dark
+                    )
+            )
             {
                 darkCandidates.Add(aName, aData.ProbabilityWeight.Value);
             }
         }
     }
 
-    private void GetPerSceneDarknessLevels(out SceneDarknessDict darknessOverrides, out AlgorithmStats stats)
+    private void GetPerSceneDarknessLevels(
+        out SceneDarknessDict darknessOverrides,
+        out AlgorithmStats stats
+    )
     {
         darknessOverrides = new();
         foreach (var e in clusterDarkness.Enumerate())
@@ -120,14 +144,23 @@ public class DefaultDarknessAlgorithm(GenerationSettings GS, StartDef start, Ran
                 if (darkness == Darkness.SemiDark)
                 {
                     // Only make a scene semi-dark if it has a dark neighbor.
-                    var anyDarkNeighbor = SceneMetadata.Get(scene).AdjacentScenes.Any(aScene =>
-                    {
-                        var aCluster = Data.SceneData.Get(aScene).Cluster;
-                        return aCluster != cluster && clusterDarkness[aCluster] == Darkness.Dark
-                            && cData.AdjacentClusters.TryGetValue(aCluster, out RelativeDarkness rd) && rd != RelativeDarkness.Disconnected;
-                    });
+                    var anyDarkNeighbor = SceneMetadata
+                        .Get(scene)
+                        .AdjacentScenes.Any(aScene =>
+                        {
+                            var aCluster = Data.SceneData.Get(aScene).Cluster;
+                            return aCluster != cluster
+                                && clusterDarkness[aCluster] == Darkness.Dark
+                                && cData.AdjacentClusters.TryGetValue(
+                                    aCluster,
+                                    out RelativeDarkness rd
+                                )
+                                && rd != RelativeDarkness.Disconnected;
+                        });
 
-                    darknessOverrides[scene] = Data.SceneData.Get(scene).ClampDarkness(anyDarkNeighbor ? Darkness.SemiDark : Darkness.Bright);
+                    darknessOverrides[scene] = Data
+                        .SceneData.Get(scene)
+                        .ClampDarkness(anyDarkNeighbor ? Darkness.SemiDark : Darkness.Bright);
                 }
                 else
                 {
@@ -142,8 +175,8 @@ public class DefaultDarknessAlgorithm(GenerationSettings GS, StartDef start, Ran
             DarknessRemaining = 0,
             CustomStats = new DefaultDarknessAlgorithmStats()
             {
-                ClusterDarkness = new(clusterDarkness)
-            }
+                ClusterDarkness = new(clusterDarkness),
+            },
         };
         foreach (var e in clusterDarkness.Enumerate())
         {
@@ -152,7 +185,10 @@ public class DefaultDarknessAlgorithm(GenerationSettings GS, StartDef start, Ran
             {
                 stats.DarknessSpent += cData.CostWeight.Value;
             }
-            else if (cData.MaximumDarkness(DRS) == Darkness.Dark && !forcedBrightClusters.Contains(e.Key))
+            else if (
+                cData.MaximumDarkness(DRS) == Darkness.Dark
+                && !forcedBrightClusters.Contains(e.Key)
+            )
             {
                 stats.DarknessRemaining += cData.CostWeight.Value;
             }

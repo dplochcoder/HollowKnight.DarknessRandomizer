@@ -4,7 +4,10 @@ namespace DarknessRandomizer.IC;
 
 public class EmbeddedSprite : ItemChanger.EmbeddedSprite
 {
-    private static readonly SpriteManager manager = new(typeof(EmbeddedSprite).Assembly, "DarknessRandomizer.Resources.Sprites.");
+    private static readonly SpriteManager manager = new(
+        typeof(EmbeddedSprite).Assembly,
+        "DarknessRandomizer.Resources.Sprites."
+    );
 
     public EmbeddedSprite(string key) => this.key = key;
 
