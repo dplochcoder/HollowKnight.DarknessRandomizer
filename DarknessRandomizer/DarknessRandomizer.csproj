@@ -87,6 +87,9 @@
     <Reference Include="ConnectionMetadataInjector">
       <HintPath>$(HollowKnightRefs)/Mods/ConnectionMetadataInjector/ConnectionMetadataInjector.dll</HintPath>
     </Reference>
+    <Reference Include="ConnectionSettingsRando">
+      <HintPath>$(HollowKnightRefs)/Mods/ConnectionSettingsRando/ConnectionSettingsRando.dll</HintPath>
+    </Reference>
     <Reference Include="GalaxyCSharp">
       <HintPath>$(HollowKnightRefs)/GalaxyCSharp.dll</HintPath>
     </Reference>

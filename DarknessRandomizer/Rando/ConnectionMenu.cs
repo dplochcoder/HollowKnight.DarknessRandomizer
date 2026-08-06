@@ -20,11 +20,19 @@ internal class ConnectionMenu
         RandomizerMenuAPI.AddMenuPage(OnRandomizerMenuConstruction, TryGetMenuButton);
         MenuChangerMod.OnExitMainMenu += () => Instance = null;
 
+        if (ModHooks.GetMod("ConnectionSettingsRando") is Mod)
+            HookConnectionSettingsRando();
+
         if (ModHooks.GetMod("RandoSettingsManager") is Mod)
-        {
             HookRandoSettingsManager();
-        }
     }
+
+    private static void HookConnectionSettingsRando() =>
+        ConnectionSettingsRando.CSR.Register(
+            nameof(DarknessRandomizer),
+            () => DarknessRandomizer.GS.RandomizationSettings,
+            s => DarknessRandomizer.GS.RandomizationSettings = s
+        );
 
     private static void HookRandoSettingsManager() =>
         RandoSettingsManagerMod.Instance.RegisterConnection(new SettingsProxy());
