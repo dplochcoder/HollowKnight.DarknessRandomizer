@@ -119,5 +119,6 @@ internal class ConnectionMenu
     {
         Settings.CopyFrom(settings);
         factory.SetMenuValues(settings);
+        SetEnabledColor();
     }
 }
