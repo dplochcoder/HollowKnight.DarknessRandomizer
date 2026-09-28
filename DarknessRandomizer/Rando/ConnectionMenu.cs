@@ -46,13 +46,14 @@ internal class ConnectionMenu
     }
 
     private readonly SmallButton entryButton;
+    private readonly MenuElementFactory<RandomizationSettings> factory;
     private readonly MenuItem<bool> randomizeDarkness;
     private readonly MenuItem<DarknessLevel> darknessLevel;
     private readonly MenuItem<bool> chaos;
     private readonly MenuItem<bool> shatteredLantern;
     private readonly MenuItem<bool> twoDupeShards;
 
-    private static T Lookup<T>(MenuElementFactory<RandomizationSettings> factory, string name)
+    private T Lookup<T>(string name)
         where T : MenuItem =>
         factory.ElementLookup[name] as T ?? throw new ArgumentException("Menu error");
 
@@ -79,19 +80,20 @@ internal class ConnectionMenu
             ? Colors.TRUE_COLOR
             : Colors.DEFAULT_COLOR;
 
+    private static RandomizationSettings Settings => DarknessRandomizer.GS.RandomizationSettings;
+
     private ConnectionMenu(MenuPage landingPage)
     {
         MenuPage mainPage = new("DarknessRando Main Page", landingPage);
         entryButton = new(landingPage, Localize("Darkness Rando"));
         entryButton.AddHideAndShowEvent(mainPage);
 
-        var settings = DarknessRandomizer.GS.RandomizationSettings;
-        MenuElementFactory<RandomizationSettings> factory = new(mainPage, settings);
-        randomizeDarkness = Lookup<MenuItem<bool>>(factory, nameof(settings.RandomizeDarkness));
-        darknessLevel = Lookup<MenuItem<DarknessLevel>>(factory, nameof(settings.DarknessLevel));
-        chaos = Lookup<MenuItem<bool>>(factory, nameof(settings.Chaos));
-        shatteredLantern = Lookup<MenuItem<bool>>(factory, nameof(settings.ShatteredLantern));
-        twoDupeShards = Lookup<MenuItem<bool>>(factory, nameof(settings.TwoDupeShards));
+        factory = new(mainPage, Settings);
+        randomizeDarkness = Lookup<MenuItem<bool>>(nameof(Settings.RandomizeDarkness));
+        darknessLevel = Lookup<MenuItem<DarknessLevel>>(nameof(Settings.DarknessLevel));
+        chaos = Lookup<MenuItem<bool>>(nameof(Settings.Chaos));
+        shatteredLantern = Lookup<MenuItem<bool>>(nameof(Settings.ShatteredLantern));
+        twoDupeShards = Lookup<MenuItem<bool>>(nameof(Settings.TwoDupeShards));
 
         LockIfFalse(randomizeDarkness, [darknessLevel, chaos]);
         LockIfFalse(shatteredLantern, [twoDupeShards]);
@@ -115,14 +117,7 @@ internal class ConnectionMenu
 
     public void ApplySettings(RandomizationSettings settings)
     {
-        darknessLevel.Unlock();
-        darknessLevel.SetValue(settings.DarknessLevel);
-        chaos.Unlock();
-        chaos.SetValue(settings.Chaos);
-        twoDupeShards.Unlock();
-        twoDupeShards.SetValue(settings.TwoDupeShards);
-
-        randomizeDarkness.SetValue(settings.RandomizeDarkness);
-        shatteredLantern.SetValue(settings.ShatteredLantern);
+        Settings.CopyFrom(settings);
+        factory.SetMenuValues(settings);
     }
 }

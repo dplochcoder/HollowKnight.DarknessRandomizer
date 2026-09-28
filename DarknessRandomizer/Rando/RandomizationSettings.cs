@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using PurenailCore.SystemUtil;
 
 namespace DarknessRandomizer.Rando;
 
@@ -11,7 +12,7 @@ public enum DarknessLevel
     Cursed,
 }
 
-public class RandomizationSettings
+public class RandomizationSettings : Copyable<RandomizationSettings>
 {
     public bool RandomizeDarkness = false;
     public DarknessLevel DarknessLevel = DarknessLevel.Dark;
@@ -21,8 +22,6 @@ public class RandomizationSettings
 
     [JsonIgnore]
     public bool IsEnabled => RandomizeDarkness || ShatteredLantern;
-
-    public RandomizationSettings Clone() => (RandomizationSettings)MemberwiseClone();
 
     public int GetDarknessBudget(Random r)
     {
