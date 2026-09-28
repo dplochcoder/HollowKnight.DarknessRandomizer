@@ -57,22 +57,22 @@ internal class ConnectionMenu
         where T : MenuItem =>
         factory.ElementLookup[name] as T ?? throw new ArgumentException("Menu error");
 
-    private void LockIfFalse(MenuItem<bool> src, List<ILockable> dest)
+    private void HideIfFalse(MenuItem<bool> leader, List<IMenuElement> followers)
     {
         void onChange(bool value)
         {
-            foreach (var lockable in dest)
+            foreach (var element in followers)
             {
                 if (value)
-                    lockable.Unlock();
+                    element.Show();
                 else
-                    lockable.Lock();
+                    element.Hide();
             }
             SetEnabledColor();
         }
 
-        src.ValueChanged += onChange;
-        onChange(src.Value);
+        leader.ValueChanged += onChange;
+        onChange(leader.Value);
     }
 
     private void SetEnabledColor() =>
@@ -95,8 +95,8 @@ internal class ConnectionMenu
         shatteredLantern = Lookup<MenuItem<bool>>(nameof(Settings.ShatteredLantern));
         twoDupeShards = Lookup<MenuItem<bool>>(nameof(Settings.TwoDupeShards));
 
-        LockIfFalse(randomizeDarkness, [darknessLevel, chaos]);
-        LockIfFalse(shatteredLantern, [twoDupeShards]);
+        HideIfFalse(randomizeDarkness, [darknessLevel, chaos]);
+        HideIfFalse(shatteredLantern, [twoDupeShards]);
         SetEnabledColor();
 
         GridItemPanel gridItemPanel = new(
